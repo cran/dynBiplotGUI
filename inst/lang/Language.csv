@@ -1,0 +1,130 @@
+es;en;fr;pt
+Se requiere Tcl/Tk >= 8.5;Tcl/Tk >= 8.5 is required;Nécessite Tcl / Tk> = 8,5;Requer Tcl/Tk >= 8,5
+Biplot Dinámico;Dynamic Biplot;Biplot Dynamique;Biplot dinâmico
+Datos;Data;Données;Dados
+Formato;Format;Format;Formato
+Variables;Variables;Variables;Variáveis
+Análisis;Analysis;Analyse;Análise
+Variable para: ;Variable for:;Variable pour:;Variável para: 
+Formato de datos: ;Format:;Format:;Formato de dados: 
+Títulos: ;Titles:;Titres:;Títulos: 
+Individuos;Individuals;Individus;Indivíduos
+Estandarización: ;Standardization:;Normalisation:;estandardizar: 
+Análisis Biplot: ;Biplot Analysis:;Analyse Biplot:;Análise de Biplot:
+Ejes: ;Axes:;Axes: ;Eixos: 
+Trayectorias: ;Trajectories:;Trajectoires:;Trajectórias:
+Opciones de gráfico: ;Graph options:;Options de graphique:;Opções de gráfico: 
+Biplot ;Biplot ;Biplot;Biplot
+ Resultados ; Results;  Résultats ; Resultados
+  Salir ; Quit ;   Laisser ;  Sair
+Cierra y borra todos los datos temporales;Close and delete all temporary data;Ferme et supprime toutes les données temporaires;Fecha e apaga todos os dados temporários
+ERROR datos ya cargados;ERROR data loaded already;ERREUR déjà chargé des données;ERRO dados já carregados
+Fichero cargado;File uploaded;Fichier chargé;Arquivo carregado
+Selecciona;Select;Sélectionnez;Selecione
+Selecciona tabla:;Select table:;Sélectionnez la table:;Selecione tabela:
+Selecciona objeto:;Select object:;Sélectionnez l'objet:;Selecione objeto:
+OK;OK;OK;OK
+Portapapeles;Clipboard;Presse-papiers;Clipboard
+Generar matrices;Generate matrices;générer des matrices;Gerar matrizes
+Etiquetas:;Labels:;tags:;Tags:
+Variable que tiene las etiquetas;Variable containing the labels;Une variable qui a les étiquettes;Variável que contém as etiquetas
+Situaciones:;Situations:;Situations:;Situações:
+Variable que tiene las situaciones;Variable containing the situations;Une variable qui a les situations;Variável que contém as situações
+AVISO: una fila tiene todos 0. Se pone 0.1 a una celda;WARNING: A row has all 0. Add 0.1 to any cell;Avis: une ligne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma linha tem todos os 0. Adicionar 0,1 a uma célula
+AVISO: una columna tiene todos 0. Se pone 0.1 a una celda;WARNING: A column has all 0. Add  0.1 to any cell;Avis: une colonne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma coluna tem todos os 0. Adicionar 0,1 a uma célula
+Editar datos:;Edit Data:;Modifier les données:;Editar dados:
+Datos originales;original data;Données originales;Dados originais
+Matriz 2 vías;Matrix 2-way;Matrice 2 voies;Matriz 2-factores
+Selecciona filas:;Select rows:;Sélectionner des lignes:;Selecione linhas:
+Marca las filas que quieras;Check the rows you want;Marquer les lignes que vous souhaitez;Marcar as linhas pretendidas
+Quita todas;remove all;Retirez toutes;Remove tudo
+Marca todas;Check all;Marquer tous;Marca tudo
+Selecciona columnas:;Select columns:;Sélectionnez les colonnes:;Selecione colunas:
+Marca las variables que quieras;Check the variables you want;Marquer les variables que vous voulez;Marcar as variáveis pretendidas
+ERROR: filas no seleccionadas;ERROR: unselected rows;ERREUR: aucune ligne sélectionnée;ERRO: não há linhas selecionadas
+ERROR: columnas no seleccionadas;ERROR: unselected columns;ERREUR: non sélectionné colonnes;ERRO: não há colunas selecionadas 
+Eje ;Axis ;Axe;Eixo
+Centrado - ;Centered - ;Centré - ;Centrado - 
+No centrado - ;Not centered - ;Pas centrée - ;Não centrado - 
+Escalado.;Scaled.;Normeé,;Padronizado
+No escalado.;Non-scaled.;Pas normeé.;Sem escala.
+Referencia: ;Reference:;Référence: ;Referência: 
+Valores propios y varianza explicada;Eigenvalues ??and  explained variance;Valeurs propres et variance expliquée;Valores próprios e variância explicada
+vp;vp;vp;vp
+var.;var.;var.;var.
+acum.;accum.;acum.;Acum.
+Coordenadas de filas:;Row coordinates:;Coordonnées des lignes :;Coordenadas das linhas:
+Coordenadas de columnas:;Column coordinates:;Coordonnées des colonnes :;Coordenadas das colunas:
+CONTRIBUCIÓN RELATIVA DEL FACTOR AL ELEMENTO:;RELATIVE CONTRIBUTIONS OF THE FACTOR TO THE ELEMENT:;CONTRIBUTION RELATIVE DU FACTEUR À L'ÉLÉMENT:;CONTRIBUIÇÃO RELATIVA DO FATOR PARA O ELEMENTO:
+Contribuciones de las filas ----------;Row Contributions ----------;Contributions des lignes ----------;Contribuições das linhas ----------
+Contribuciones de las columnas ----------;Column Contributions ----------;Contributions des colonnes ----------;Contribuições das colunas ----------
+Coordenadas de las TRAYECTORIAS:;TRAJECTORY coordinates:;Coordonnées des TRAJECTOIRES:;Coordenadas das TRAJETÓRIAS:
+Variable:;Variable:;Variable :;Variável:
+Individuo:;Individual:;individu:;Indivíduo:
+Biplot Dinámico - Resultados;Dynamic Biplot - Results;Biplot Dynamique - Résultats;Biplot dinâmico - Resultados
+Título: ;Title:;Titre :;Título:
+Subtítulo: ;Subtitle:;Sous-titre :;Subtítulo:
+Puedes seleccionar mas de 1;You can select more than one;Vous pouvez sélectionner plus de 1;Pode selecionar mais de 1
+Selecciona;Select;Sélectionnez;Selecione
+Marca fila y selecciona;Mark row and select;Marquez la ligne puis sélectionnez;Marque a linha e selecione
+Selecciona filas:;Select rows:;Sélectionner des lignes:;Selecione linhas:
+Etiquetas para filas;Labels for rows;Étiquettes de lignes;Etiquetas para linhas
+ para columnas;  for columns; pour les colonnes; para colunas
+Inercia filas: ;Inertia rows:;Inertia des lignes: ;Inércia linhas:
+filas;rows;lignes;linhas
+Inercia columnas:;Inertia columns:;Inertia des colonnes:  ;Inércia colunas:
+columnas;columns;colonnes;colunas
+Referencia: ;Reference:;Référence: ;Referência:
+Biplot global:;Global Biplot:;Biplot global:;Biplot global:
+Trayectoria - filas: ;Trajectory - rows:;Trajectoires - lignes: ;Trajetórias - linhas:
+ columnas;  columns; colonnes; colunas
+Etiquetas - filas: ;Labels - rows: ;Tags - lignes: ;Etiquetas - linhas:
+Cambia formato: ;Change format: ;Modifier format: ;Alterar formato:
+Múltiple: ;Multiple: ;Multiples: ;Múltiplos:
+Variable de agrupación;Grouping variable;Variable de regroupement;Variável de agrupamento
+Etiqueta: ;Label: ;Tag: ;Etiqueta:
+Color:;Color: ;Couleur:;Cor:
+Forma:;Form: ;Forme:;Forma:
+Peso:;Weight: ;Poids:;Peso:
+Posición:;Position: ;Position:;Posição:
+Mostrar:;Show: ;Montrer:;Mostrar:
+Cambia;Change;Il change;Altera
+Trayectoria:;Trajectory:;Trajectoires:;Trajetória: 
+Opción: ;Option: ;Option:;Opção:
+Leer datos: ;Read Data: ;Lecture de données:;Ler dados:
+Carga de datos;Load Data;Chargement de données;Carregar dados
+Son datos de 3 vías;They are 3-way data;Ils sont 3 voies données;São dados de 3 vias
+Marca antes de buscar el fichero;Mark before searching the file;Marquer avant de rechercher le fichier;Marcar antes procure o arquivo
+Carga formatos desde R;Load formats from R;Charge formats de R;Carregar formatos de R
+"Archivos: filas=b.fx; columnas=b.fy";"Files: rows=b.fx; columns=b.fy";"Fichiers: lignes= b.fx; colonnes=b.fy";"Arquivos: linhas = b. fx; cols = fy b."
+-Selecciona tipo de fichero-;-Select file type-;-Sélectionnez un type de fichier-;-Selecionar tipo de ficheiro-
+portapapeles;clipboard;Presse-papier;Clipboard
+Formato de datos;Data format;Format de données;Formato dos dados
+Selección de filas y columnas;Selecting rows and columns;Sélection de lignes et de colonnes;Seleção de linhas e colunas
+Ayuda;Help;Aide;Ajuda
+Opciones de análisis;Analysis options;Options d'analyse;Opções de análise
+Centrado;Centered;Centré;Centrado
+Escalado;Scaled;Normeé;Padronizado
+Sobre n. vías;Over #way;Sur n. voies;Sobre n. vias
+Ejes: ;Axes: ;Axes: ;Eixos:
+ Plano: ; Plane: ; Plan: ; Plano: 
+ Mostrar; Show; Montrer; Mostrar
+ERROR en tipo de archivo.;ERROR in file type.;ERREUR dans le type de fichier.;ERRO no tipo de ficheiro
+Copiar imagen;Copy Image;Copier l'image;Copiar imagem
+Guardar Imagen;Save Image;Sauver l'image;Guardar imagem
+Salir;Exit;Sortie;Sair
+Archivo;File;Fichier;Arquivo
+Refrescar;Refresh;Actualiser;Actualizar
+permuta x;swap x;swap x;permutar x
+permuta y;swap y;swap y;permutar y
+Escalar x;Scalar x;Échelle x;padronizar x
+Límites... x:;Limits... x:;Limites... x:;Limites... x:
+ERROR: menos filas que columnas;ERROR: fewer rows than columns;ERREUR: moins de lignes que de colonnes;ERRO: menos linhas do que colunas
+ERROR: mal formato de filas;ERROR: bad format of rows;ERREUR: mauvais format de lignes;ERRO: bad formato de linhas
+ERROR: mal formato de columnas;ERROR: bad format of columns;ERREUR: mauvais format de colonnes;ERRO: bad formato de colunas
+R2 - columnas, plano: ;R2 - columns, plane: ;R2 - colonnes, plan: ;R2 - colunas, plano: 
+La inercia escogida excluye todas las filas;Chosen inertia excludes all rows;Inertie choisi exclut toutes les lignes;Inércia escolhido exclui todas as linhas
+La inercia escogida excluye todas las columnas;Chosen inertia excludes all columns;Inertie choisi exclut toutes les colonnes;Inércia escolhido exclui todas as colunas
+F anova - plano: ;F anova - plane: ;F anova - plan: ;F anova - plano: 
+p-valor F - plano: ;p-value F - plane: ;p-value F - plan: ;valor-p F - plano: 
+R2 - filas, plano: ;R2 - rows, plane: ;R2 - lignes, plan: ;R2 - linhas, plano: 
