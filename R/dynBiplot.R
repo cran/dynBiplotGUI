@@ -23,6 +23,8 @@ function (lang="es")
 	if1 <- tclVar("0")			# indicador de campos de formatos
 	icar <- tclVar("0")			# indicador de datos cargados
 	ifd <- tclVar("0")			# indicador de ya mostrado formato datos
+	it1 <- tclVar("0")			# indicador de mostrar titulo
+	it2 <- tclVar("0")			# indicador de mostrar subtitulo
 	iagr <- 1					# indicador de boton de formato
 	iyax <- 0					# indicador de ya rotado x
 	iyay <- 0					# indicador de ya rotado y
@@ -129,7 +131,7 @@ function (lang="es")
 	#		leer excel
 	#
 	leer.excel <- function()	{	
-		b.x <- NULL
+		if(1==2) b.x <- NULL				# para evitar error en R CMD check
 		file1<-tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
 		if (!length(file1))   return()
 		channel <- odbcConnectExcel2007(file1,readOnly = TRUE)
@@ -144,21 +146,21 @@ function (lang="es")
 		tkpack(tl)
 		tkselection.set(tl, 0)
 		OnOK <- function()	{
-		  bt.hoja <<- hojastabla[as.numeric(tkcurselection(tl)) + 1]
-		  b.x <<- sqlFetch(channel, bt.hoja)
-		  odbcClose(channel)
-		  tkdestroy(whoja)
+			bt.hoja <- hojastabla[as.numeric(tkcurselection(tl)) + 1]
+			b.x <<- sqlFetch(channel, bt.hoja)
+			mens.leer <<- bt.hoja
+			odbcClose(channel)
+			tkdestroy(whoja)
 		}
 		OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
 		tkpack(OK.but)
 		tkfocus(whoja) 
 		tkwait.window(whoja)
-		mens.leer <<- bt.hoja
 		}
 	#		leer dataframe
 	# 
 	leer.df <- function()	{
-		b.x <- b.x
+		if(1==2) b.x <- b.x				# para evitar error en R CMD check
 		h0 <- lsos()
 		t0 <- tktoplevel()
 		tkwm.title(t0,bt.lit[22,])		# Selecciona
@@ -234,8 +236,8 @@ function (lang="es")
 		ve <- tclvalue(veti)
 		# elimino la columna de etiquetas 
 		b.x2 <<- b.x[colnames(b.x)!=ve]			# provisional para etiquetas
-		colnames(b.x2)<<- colnames(b.x[colnames(b.x)!=ve])
-		rownames(b.x2)<<-t(b.x[colnames(b.x)==ve])
+		colnames(b.x2) <<- colnames(b.x[colnames(b.x)!=ve])
+		rownames(b.x2) <<- t(b.x[colnames(b.x)==ve])
 		}
 		
 	cubo3 <- function() {
@@ -253,9 +255,9 @@ function (lang="es")
 		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,b.x[vs]==bt.leve[k]))
 		#
 		#	etiqueta el cubo
-		colnames(bt.x3)<-colnames(bt.x)
-		rownames(bt.x3)<-b.x[ve][b.x[vs]==bt.t]	
-		dimnames(bt.x3)[[3]]<-bt.leve
+		colnames(bt.x3) <- colnames(bt.x)
+		rownames(bt.x3) <- b.x[ve][b.x[vs]==bt.t]	
+		dimnames(bt.x3)[[3]] <- bt.leve
 		#	Chequeamos trayectorias nulas:
 		#	filas
 		for (i in 1:nrow(bt.x3[,,1])) {
@@ -286,6 +288,7 @@ function (lang="es")
 	#				Etiqueta: 		eti
 	#				Color eti:		ecol
 	#				Simbolo:		pch
+	#				Tipo linea:		lty	
 	#				Grosor linea:	lwd
 	#				Posicion:		pos
 	#				color trayect.:	tcol
@@ -307,27 +310,27 @@ function (lang="es")
 										}
 			}
 		#	Inicializacion de los data frame de formatos
-		else {							# No cargamos formato desde archivo
-			b.fx <- b.fy <- NULL		# para evitar error en R CMD check
-			b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=3,lwd=1,pos=2,
-						tcol="#0000ff",type=1, stringsAsFactors = F)
+		else {									# No cargamos formato desde archivo
+			if (1==2) b.fx <- b.fy <- NULL		# para evitar error en R CMD check
+			b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=16,lty=1,lwd=1,
+						pos=2,tcol="#0000ff",type=1, stringsAsFactors = F)
 			rownames(b.fx) <<- rownames(b.x2)
-			b.fy <<- data.frame(eti=colnames(b.x2),ecol="#000000",pch=18,lwd=2,pos=2,
-						tcol="#000000",type=1, stringsAsFactors = F)
+			b.fy <<- data.frame(eti=colnames(b.x2),ecol="#000000",pch=18,lty=1,lwd=2,
+						pos=2,tcol="#000000",type=1, stringsAsFactors = F)
 			rownames(b.fy) <<- colnames(b.x2)
 			}
 
 		#	Formato de datos					
 		row0.frm <- tk2frame(tb1,relief="sunken",padding="2")
 		tkpack(tk2label(row0.frm,text=bt.lit[34,],
-					background="lightyellow"),fill="x")	# Editar datos
+					background="lightyellow"),fill="x")	# Editar formatos
 		
 		b.x <- b.x									# para evitar error en R CMD check
-		row.erow <- function()	b.x <<-edit(b.x)
-		row.ecol <- function()	b.x2 <<-edit(b.x2)
+		row.erow <- function()	fix(b.fx)
+		row.ecol <- function()	fix(b.fy)
 		row.b <- tk2frame(row0.frm, relief="sunken")		
-		row.b1 <- tk2button(row.b,text=bt.lit[35,], command=row.erow)	# Datos originales
-		row.b2 <- tk2button(row.b,text=bt.lit[36,], command=row.ecol)	# Matriz 2 vias
+		row.b1 <- tk2button(row.b,text=bt.lit[10,], command=row.erow)	# Individuos
+		row.b2 <- tk2button(row.b,text=bt.lit[5,], command=row.ecol)	# Variables
 
 		tkpack(row.b1,row.b2, side="left")
 		tkpack(row0.frm,row.b, side="bottom")
@@ -544,7 +547,7 @@ function (lang="es")
 		bt.zc[,,v] <<- Z
 		reg <- apply(x2,2,function(x) lm(x~A[,c(dim1,dim2)]))
 		bt.r2c[v,] <<- sapply(reg, function(x) summary.lm(x)$r.squared)		# todos los R2 de la variable
-		bt.Fc[v,] <<- sapply(reg, function(x) summary.lm(x)$fstatistic)[1]		# estadistico F
+		bt.Fc[v,] <<- sapply(reg, function(x) summary.lm(x)$fstatistic)[1,]		# estadistico F
 		bt.Prc[v,] <<- sapply(reg, function(x) lmp(x))			# p-valor de F
 	}
 	#	Para individuos
@@ -559,7 +562,7 @@ function (lang="es")
 		x2 <- scale((x),bt.x2m,bt.x2sd)				# siempre con la referencia
 			
 		Z <- t(solve(t(B) %*% B) %*% t(B) %*% t(x2))	# traspuesta de x2
-		if (hj=="1") Z<-Z%*%bt.D						# reescalado de HJ
+		if (hj=="1") Z <- Z%*%bt.D						# reescalado de HJ
 		bt.zr[,,v] <<- Z	
 	}
 	#	======================================================
@@ -663,15 +666,18 @@ function (lang="es")
 	{
 	if (1==2) b.fx <- b.fy <- NULL		# para evitar error en R CMD check
 	#	Titulos
-	frf1 <- tk2frame(fr.f2,relief="raised", borderwidth=2,padding="2")
-	frf2 <- tk2frame(fr.f2,relief="groove", borderwidth=2,padding="2")
-	tkpack(tk2label(frf1,text=bt.lit[64,], width="11"), 	# Titulo
+	frf1 <- tk2frame(fr.f2,borderwidth=1)
+	frf2 <- tk2frame(fr.f2,borderwidth=1)
+	tkpack(tk2checkbutton(frf1,variable=it1,tip=bt.lit[110,]),		# Mostrar
+		tk2label(frf1,text=bt.lit[64,], width="11"), 	# Titulo
 		tk2entry(frf1, width="40", textvariable=vtit), side="left")
-	tkpack(tk2label(frf2,text=bt.lit[65,], width="11"), 	# Subtitulo
+	tkpack(tk2checkbutton(frf2,variable=it2,tip=bt.lit[110,]),		# Mostrar
+		tk2label(frf2,text=bt.lit[65,], width="11"), 	# Subtitulo
 		tk2entry(frf2, width="40", textvariable=vsub), side="left")
 	tkpack(frf1, side="top")
-	if (tclvalue(i3v)==0) tkpack(frf2)
-	
+	# if (tclvalue(i3v)==0) tkpack(frf2)
+	tkpack(frf2)
+
 	#	Para formato de datos
 		# Solapa individuos tb1
 	ff21 <- tk2frame(tb21, relief="sunken",padding="2")
@@ -776,7 +782,7 @@ function (lang="es")
 	Formatos <- function (x) {
 		# Entrada: x = b.fx[i:j,]	# todos los datos de formato
 		# Esta definido:
-		#	b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=3,lwd=1,pos=2,
+		#	b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=16,lwd=1,pos=2,
 		#			tcol="#0000ff",type=1, stringsAsFactors = F)
 	
 		eti1 <- tclVar(x$eti[1])
@@ -880,8 +886,8 @@ function (lang="es")
 		cv1b <- tk2button(fr2, text="+", width = 1,command = colb)
 		tkpack(tk2label(fr2,text=bt.lit[85,],width = 10,background="papayawhip"), 	# Color
 				bt.cv1, cv1b, side="left",fill="both")
-		pch1 <- tclVar(3)
-		bt.cbb1 <<- tk2combobox(fr3,values=1:25,width="3", textvariable=pch1)
+		pch1 <- tclVar(16)
+		bt.cbb1 <<- tk2combobox(fr3,values=0:25,width="3", textvariable=pch1)
 		tkpack(tk2label(fr3,text=bt.lit[86,],width = 10,background="papayawhip"),	# Forma
 				bt.cbb1, side="left")
 		
@@ -950,18 +956,18 @@ function (lang="es")
 					borderwidth=2,padding="2")			# para 3 vias
 		fr.d1 <-tk2labelframe(tb1,text=bt.lit[93,])		# leer datos
 		tb1.t0 <- tk2frame(tb1)
-		tb1.t1 <- tk2label(tb1.t0,text=bt.lit[94,],background="yellow",width=40)	# Carga de datos
+		tb1.t1 <- tk2label(tb1.t0,text=bt.lit[94,],background="yellow",width=50)	# Carga de datos
 		tb1.t2 <- tk2button(tb1.t0,text="?",width=4,command=ayuda1,tip=bt.lit[103,])	# Ayuda
 		tkpack(tb1.t1, side="left", fill="x")
 		tkpack(tb1.t2, side="right")
 		tkpack(tb1.t0,fr.d0, fr.d1, fr.d2, side="top", fill="x")
 
 		fr11 <- tk2frame(fr.d0)	
-		tkpack(tk2label(fr11,text=bt.lit[95,],background="lightyellow", width=20), 	# Son datos de 3 vias
+		tkpack(tk2label(fr11,text=bt.lit[95,],background="lightyellow"), 	# Son datos de 3 vias
 				tk2checkbutton(fr11, variable=i3v), side="left",fill="both")
 		tk2tip(fr11, bt.lit[96,])	# Marca antes de buscar el fichero
 		fr10 <- tk2frame(fr.d0) 
-		tkpack(tk2label(fr10,text=bt.lit[97,],background="lightyellow", width=20),	# Carga formatos desde R
+		tkpack(tk2label(fr10,text=bt.lit[97,],background="lightyellow"),	# Carga formatos desde R
 				tk2checkbutton(fr10, variable=ifo), side="left")
 		tk2tip(fr10, bt.lit[98,])	# Archivo filas: b.fx \nArchivo columnas: b.fy
 		#
@@ -985,7 +991,7 @@ function (lang="es")
 	{
 		sep1 <- tk2separator(tb2)
 		tb2.t0 <- tk2frame(tb2)
-		tb2.t1 <- tk2label(tb2.t0,text=bt.lit[101,],background="salmon",width=40)	# Formato de datos
+		tb2.t1 <- tk2label(tb2.t0,text=bt.lit[101,],background="salmon",width=50)	# Formato de datos
 		tb2.t2 <- tk2button(tb2.t0,text="?",width=4,command=ayuda2,tip=bt.lit[103,])	# Ayuda
 		tkpack(tb2.t1, side="left", fill="x")
 		tkpack(tb2.t2, side="right")
@@ -998,7 +1004,7 @@ function (lang="es")
 	{
 		tb3.t0 <- tk2frame(tb3)
 		tb3.t1 <- tk2label(tb3.t0,text=bt.lit[102,],	# Seleccion de filas y columnas
-						background="lightblue",width=40)
+						background="lightblue",width=50)
 		topic <- "dynBiplot"
 		pkg_ref <- "dynBiplotGUI"				
 		tb3.t2 <<- tk2button(tb3.t0,text="?",width=4, 
@@ -1014,7 +1020,7 @@ function (lang="es")
 	{
 		tb4.t0 <- tk2frame(tb4)
 		tb4.t1 <- tk2label(tb4.t0,text=bt.lit[104,],	# Opciones de analisis
-					background="lightgreen",width=40)
+					background="lightgreen",width=50)
 		tb4.t2 <- tk2button(tb4.t0,text="?",width=4,command=ayuda4,tip="Ayuda")
 		tkpack(tb4.t1, side="left", fill="x")
 		tkpack(tb4.t2, side="right")
@@ -1066,7 +1072,7 @@ function (lang="es")
 		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
 		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
 		arrows(0,0, x[,1], x[,2],
-			col=fx$ecol,length=0.1, angle=30, cex=1, lwd=fx$lwd)
+			col=fx$ecol,length=0.1,angle=30,lty=as.numeric(fx$lty),lwd=fx$lwd)
 	}
 	Textoc <- function (x,fx) {
 		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
@@ -1086,7 +1092,7 @@ function (lang="es")
 		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
 		x <- as.numeric(tclvalue(vesc))* x			# reescala x
 		points(x[,1], x[,2], col=fx$ecol,
-			cex=.5, pch=as.numeric(fx$pch))
+			cex=.7, pch=as.numeric(fx$pch))
 	}
 	Trayectc <- function (x,fx) {
 		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
@@ -1119,16 +1125,26 @@ function (lang="es")
     
     plotBiplot1 <- function(screen = TRUE) 
     {     
-		wintitle <- tclvalue(vtit)    
+		if (tclvalue(it1)==1) wintitle <- tclvalue(vtit)    
+			else {wintitle <- NULL
+				tmp <- par("mar") 
+				tmp[3] <- 1
+				par(mar=tmp)
+				}
 		col.title <- "black"
 		background <- "white"    
 		params <- par(bg="white")
 		col.col <- "black"
 		col.row <- "blue"
 
-		if (tclvalue(i3v)=="1" & tclvalue(ibg)!="1") subtitulo <- paste("Ref.: ",bt.t)
-			else	subtitulo <- tclvalue(vsub)
-
+		if (tclvalue(it2)==1)     
+			if (tclvalue(i3v)=="1" & tclvalue(ibg)!="1") subtitulo <- paste("Ref.: ",bt.t)
+				else	subtitulo <- tclvalue(vsub)
+			else {subtitulo <- NULL
+				tmp <- par("mar") 
+				tmp[1] <- 4
+				par(mar=tmp)
+				}
 		plot(bt.a, main = wintitle, type = "n",
 			col.main = col.title,  family="sans",
 			font.main=4,		
@@ -1192,8 +1208,8 @@ function (lang="es")
 			tmpf <- bt.fxg[i,]
 			Trayectr(tmp,tmpf)
 			if (tclvalue(ietzr)=="1") {
-			tmpe <- bt.fxg$eti[i]
-			Textotr(tmp,tmpf,tmpe)			
+				tmpe <- bt.fxg$eti[i]
+				Textotr(tmp,tmpf,tmpe)			
 		}}
 	}
 
@@ -1222,22 +1238,26 @@ function (lang="es")
 	{
 		FileName <- tclvalue(tkgetSaveFile(filetypes = "
 				{{Imagen png} {.png}} 
-				{{Imagen svg} {.svg}} 
 				{{Imagen jpeg} {.jpg .jpeg}}
+				{{Imagen svg} {.svg}} 
+				{{Imagen wmf} {.wmf}} 
 				{{Imagen pdf} {.pdf}}
 				{{All files} *}
 				"	))
 		# por defecto, png
 		if (!grepl("\\.",FileName)) 
-			FileName <- paste(FileName, ".png", sep = "")
+			FileName <- paste(FileName, "png", sep = ".")
 		nn <-  tolower(unlist(strsplit(FileName,"\\."))[[2]])
 		
 		if (nn=="pdf") pdf(FileName, width = 7, height = 7)
 		else if (nn=="jpg" | nn=="jpeg")
 			jpeg(FileName, width = 7, height = 7, units = "in", 
-				restoreConsole = FALSE, res = 96, quality = 50)
+				restoreConsole = FALSE, res = 96, quality = 100)
 		else if (nn=="svg" | nn=="jpeg")
 			svg(FileName, width = 7, height = 7)
+		else if (nn=="wmf")
+			{plotBiplot1 (screen = FALSE)
+			savePlot(FileName, type="wmf")	}
 		else if (nn=="png")
 			png(FileName, width = 7, height = 7, units = "in", 
 					restoreConsole = FALSE, res = 96)
@@ -1333,7 +1353,7 @@ function (lang="es")
         if (tclvalue(ittp)==0) 			# dibuja grafico
 		{
 			bt.ttp <<- tktoplevel()                
-			tkwm.title(bt.ttp, "Biplot Dinamico")  
+			tkwm.title(bt.ttp,bt.lit[2,]) 	# "Biplot Dinamico"
 			bt.ttp1 <<- tk2frame(bt.ttp)	# para figura
 			bt.ttp2 <<- tk2frame(bt.ttp,relief="raised",borderwidth=2,padding="2")	# pie para coordenadas
 			tkpack(bt.ttp1,bt.ttp2, side="top",fill="x")
@@ -1356,7 +1376,8 @@ function (lang="es")
 	#
 	tt <- tktoplevel()
 	Sys.sleep(0.1)							# para bug PR#15150
-	tkwm.title(tt,bt.lit[2,]) 				# "Biplot Dinamico"
+	# tkwm.title(tt,bt.lit[2,]) 				# "Biplot Dinamico"
+	tktitle(tt)<-(bt.lit[2,]) 				# "Biplot Dinamico"
 	
 	nb <- tk2notebook(tt,tabs=c(bt.lit[3,],bt.lit[4,],bt.lit[5,],bt.lit[6,]))
 	tkpack(nb,fill="both")

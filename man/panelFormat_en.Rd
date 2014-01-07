@@ -11,8 +11,10 @@ Opcions for data format. Apply the format of the graphic elements.
 
 \section{Title:}{
 \itemize{
+  \item Check to display the title on the graph. Default is disabled.
   \item \emph{Title}: Allows entering the title of the biplot graphic. By default it puts Biplot.
-  \item \emph{Subtitle}: Allows entering the subtitle of the biplot graphic. It only appears if two-dimensional data are been processing. If three-dimensional data are been processing, the subtitle is automatically generated with the value of the reference situation.
+  \item Check to display the subtitle on the graph. Default is disabled.
+  \item \emph{Subtitle}: Allows entering the subtitle of the biplot graphic. If three-dimensional data are been processing, the subtitle is automatically generated with the value of the reference situation.
 }
 }
 \section{Format:}{
@@ -36,8 +38,8 @@ Allows multiple selection of individuals or variables that meet equal to the val
   \item \emph{Weight}: Point thickness, according to standard values in R.
   \item \emph{Position}: Label position relative to the point, according to standard values in R, 1-south, 2-west, 3-north, 4-east.
   \item \emph{Trajectory}: Color path, if appropriate. Clicking on the + button opens a window to select the color.
-  \item \emph{Show}: determines whether or not shown on the graph. Yes intervenes in the calculation.
-  \item \emph{Change} button: Fixed the changed values in the selected element.
+  \item \emph{Show}: determines whether or not shown on the graph. Yes involved in the calculation.
+  \item \emph{Change} button: Fix the changed values in the selected element.
 }
 }
 \section{General buttons}{

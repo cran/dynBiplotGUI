@@ -1,10 +1,10 @@
 \name{dynBiplotGUI-package}
-\Rdversion{1.0.0}
+\Rdversion{1.0.1}
 \alias{dynBiplotGUI-package}
 \alias{dynBiplotGUI}
 \docType{package}
 \title{
-dynBiplotGUI: Interactive GUI for Dynamic Biplot in R
+Interactive GUI for Dynamic Biplot in R
 }
 \description{
 A GUI to solve Dynamic Biplot, classic Biplot and HJ-Biplot. Try matrices of 2-way and 3-way. Multilanguage.
@@ -21,7 +21,7 @@ LazyLoad: \tab yes\cr
 }
 The dynBiplot function initialises the GUI.
 \cr At present, dynBiplotGUI supports Spanish, English, French, Portuguese.
-\cr dynBiplotGUI is tested on Windows 7 (32 & 64 bits), Windows XP, and MacOS.
+\cr dynBiplotGUI is tested on Windows 7 (32 & 64 bits), Windows XP.
 }
 \author{
 Jaime Egido

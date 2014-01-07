@@ -2,7 +2,7 @@
 \alias{panelFormat_es}
 
 \title{
-Panel para formato (español)
+Panel para formato (Spanish)
 }
 \description{
 Opciones para formato de datos. Permite aplicar el formato de los elementos gráficos.
@@ -11,8 +11,10 @@ Opciones para formato de datos. Permite aplicar el formato de los elementos grá
 
 \section{Títulos:}{
 \itemize{
+  \item Marca para mostrar el título en el gráfico. Por defecto está deshabilitado.
   \item \emph{Título}: permite introducir el título del gráfico biplot. Por defecto Biplot.
-  \item \emph{Subtítulo}: permite introducir el subtítulo del gráfico biplot. Sólo se muestra si se están tratando datos de dos dimensiones. Si se tratan datos de tres dimensiones se genera automáticamente con el valor de la situación de referencia.
+  \item Marca para mostrar el subtítulo en el gráfico. Por defecto está deshabilitado.
+  \item \emph{Subtítulo}: permite introducir el subtítulo del gráfico biplot. Si se tratan datos de tres dimensiones se genera automáticamente con el valor de la situación de referencia.
 }
 }
 \section{Formato de datos:}{

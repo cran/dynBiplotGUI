@@ -11,8 +11,6 @@ Panel Data Options: data load.
 \bold{Data:}
 \itemize{
   \item \file{b.x} contains the read data without modification. The first row contains labels. Columns labels may be contained in any of the variables in the array. It remains to close the application.
-  \item \file{b.x2} contains the data used for the analysis of 2-way, with the labels shown. It remains to close the application.
-  \item \file{b.x3} data are used for analysis of 3-way, with the labels indicated and the variable that makes the third way. The labels for the rows are taken from the file \file{b.x2}. It remains to close the application.
 }
 \bold{Graphics formats:}
 \itemize{
@@ -41,10 +39,10 @@ Panel Data Options: data load.
   \item \emph{Generate matrices} button generates the data structure required to the analysis, it loads the other panels with the appropriate options, and passes the control to the \emph{Variables} tab.
 }
 }
-\section{Edit data:}{
+\section{Edit formats:}{
 \itemize{
-  \item The \emph{Original data} button edits the \file{b.x} matrix.
-  \item The \emph{Matrix 2-way} button edits the \file{b.x2} matrix. If the \file{b.x} data are changed, they do not change the \file{b.x2} data automatically.
+  \item The \emph{Individuals} button edits the \file{b.fx} matrix.
+  \item The \emph{Variables} button edits the \file{b.fy} matrix.
 }
 }
 \section{General buttons}{

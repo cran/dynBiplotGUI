@@ -32,7 +32,7 @@ Situaciones:;Situations:;Situations:;Situações:
 Variable que tiene las situaciones;Variable containing the situations;Une variable qui a les situations;Variável que contém as situações
 AVISO: una fila tiene todos 0. Se pone 0.1 a una celda;WARNING: A row has all 0. Add 0.1 to any cell;Avis: une ligne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma linha tem todos os 0. Adicionar 0,1 a uma célula
 AVISO: una columna tiene todos 0. Se pone 0.1 a una celda;WARNING: A column has all 0. Add  0.1 to any cell;Avis: une colonne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma coluna tem todos os 0. Adicionar 0,1 a uma célula
-Editar datos:;Edit Data:;Modifier les données:;Editar dados:
+Editar formatos:;Edit format:;Modifier les format:;Editar formato:
 Datos originales;original data;Données originales;Dados originais
 Matriz 2 vías;Matrix 2-way;Matrice 2 voies;Matriz 2-factores
 Selecciona filas:;Select rows:;Sélectionner des lignes:;Selecione linhas:
@@ -49,7 +49,7 @@ No centrado - ;Not centered - ;Pas centrée - ;Não centrado -
 Escalado.;Scaled.;Normeé,;Padronizado
 No escalado.;Non-scaled.;Pas normeé.;Sem escala.
 Referencia: ;Reference:;Référence: ;Referência: 
-Valores propios y varianza explicada;Eigenvalues ??and  explained variance;Valeurs propres et variance expliquée;Valores próprios e variância explicada
+Valores propios y varianza explicada;Eigenvalues and explained variance;Valeurs propres et variance expliquée;Valores próprios e variância explicada
 vp;vp;vp;vp
 var.;var.;var.;var.
 acum.;accum.;acum.;Acum.

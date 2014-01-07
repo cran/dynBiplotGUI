@@ -2,7 +2,7 @@
 \alias{panelVariables_es}
 
 \title{
-Panel de Variables (español)
+Panel de Variables (Spanish)
 }
 \description{
 Opciones del panel de selección de Variables. Permite seleccionar los individuos y las variables que se van a utilizar en el análisis.

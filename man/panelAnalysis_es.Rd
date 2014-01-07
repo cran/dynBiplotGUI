@@ -3,7 +3,7 @@
 
 \encoding{UTF-8}
 
-\title{Panel de Análisis (español)}
+\title{Panel de Analisis (Spanish)}
 \description{
 Opciones del panel de Análisis. Permite establecer las condiciones en que se realiza el análisis biplot.
 }

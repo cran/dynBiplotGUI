@@ -1,7 +1,7 @@
 \name{panelData_es}
 \alias{panelData_es}
 
-\title{Panel de Datos (español)}
+\title{Panel de Datos (Spanish)}
 \description{
 Opciones del panel de datos: Carga de datos.
 }
@@ -10,8 +10,6 @@ Opciones del panel de datos: Carga de datos.
 \bold{Datos:}
 \itemize{
   \item \file{b.x} contiene los datos leídos sin modificación. La primera fila contiene las etiquetas. Las etiquetas de las columnas pueden estar contenidas en cualquiera de las variables de la matriz. Se mantiene al cerrar la aplicación.
-  \item \file{b.x2} contiene los datos usados para análisis de 2 vías, con las etiquetas indicadas. Se mantiene al cerrar la aplicación.
-  \item \file{b.x3} son los datos usados para análisis de 3 vías, con las etiquetas indicadas y la variable que marca la tercera vía. Las etiquetas para las filas se cogen del archivo \file{b.x2}. Se mantiene al cerrar la aplicación.
 }
 \bold{Formatos gráficos:}
 \itemize{
@@ -40,10 +38,10 @@ Opciones del panel de datos: Carga de datos.
   \item Botón \emph{Generar matrices} genera las estructuras de datos necesarias para el análisis, carga el resto de paneles con las opciones adecuadas, y pasa el control a la solapa \emph{Variables}.
 }
 }
-\section{Editar datos:}{
+\section{Editar formatos:}{
 \itemize{
-  \item Botón \emph{Datos originales} edita la matriz \file{b.x}.
-  \item El botón \emph{Matriz de 2 vías} edita la matriz \file{b.x2}. Si se cambian datos en \file{b.x} no se propagan de forma automática a \file{b.x2}.
+  \item Botón \emph{Individuos} edita la matriz \file{b.fx}.
+  \item El botón \emph{Variables} edita la matriz \file{b.fy}.
 }
 }
 \section{Botones generales}{

@@ -1,0 +1,32 @@
+VERSION 1.0.1
+6 January 2014
+News features
+
+* Options to show or not, title and subtitle.
+* Option to save the graphic in WMF format.
+* Edits format arrays for individuals and variables.
+* Include 'lty' parameter for formats.
+
+Minor bug fix.
+
+* Failed to load data from R if there is no b.x.
+* Results does not properly collected statistical F.
+
+
+VERSION 1.0.0
+4 November 2013
+The first CRAN release. 
+
+Contains support for
+* Biplots: Dynamic Biplot, HJ-Biplot, GH-Biplot, JK-Biplot.
+* Multilanguage: Spanish, English, French, Portuguese.
+* Load data from: Excel, R, Txt, Clipboard.
+* Maintaining the loaded data and the formats in R.
+* Data transformations: centre, scale; scale for 1-way, 2-way, 3-way.
+* Selection of variables and individuals to include in the analysis. 
+* Format for the characteristics of variables, individuals and trajectories.
+* Selection of items to display in the chart.
+* Zoom and graphics symmetric.
+* Export the graph in various formats. 
+* Gets coordinates and contributions from the elements.
+* Gets R2, F-statistic and p-value of the trajectories.
