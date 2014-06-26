@@ -25,7 +25,8 @@ This section shows if we are trying a data cube.
   \item \emph{Reference:} values of the selected variable reference.
   \item \emph{Global Biplot}: with all data without modifying them, in a 2-way matrix.
   \item \emph{Trajectory-rows and columns}, drawing options, by default, both are activated.
-  \item \emph{Labels} of the trajectory for \emph{rows and columns} drawing options, both are activated by default..
+  \item \emph{p-value} to display the trajectory only with significant points.
+  \item \emph{Labels} of the trajectory for \emph{rows and columns} drawing options, both are activated by default.It is possible to \emph{concatenate} the row label and situations.
 }
 }
 \section{General buttons}{

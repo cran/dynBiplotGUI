@@ -1,3 +1,19 @@
+VERSION 1.1.0
+26 June 2014
+News features
+
+* Option to save the graphic in eps format.
+* Now, the labels of the trajectories are the situations.
+* Optionally, the labels of the trajectories can be the element plus the situation.
+* Added an option for the trajectories are only significant values.
+* Added a field to collect the significance level.
+* Control of selected language.
+* Extended help: interpretation criteria of biplot graphics.
+* If the file is 3 ways, it is checked that the data blocks are complete.
+* It checks that there are files formats and formats that correspond to read the data.
+* Simplification of code.
+* Use NAMESPACE file to set package dependencies.
+
 VERSION 1.0.1
 6 January 2014
 News features

@@ -1,5 +1,5 @@
 \name{dynBiplot}
-\Rdversion{1.0.1}
+\Rdversion{1.1.0}
 \alias{dynBiplot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -24,6 +24,17 @@ The program guides the user through four phases:
 \cr 3- Selection of variables and individuals for biplot graphics.
 \cr 4- Selecting Options for the chart. If 3-way data, options for trajectories.
 }
+\section{Interpreting the HJ-Biplot graphic}{
+The HJ-Biplot method is based on simple geometric concepts. Below those basic interpretational rules are presented: 
+\cr
+\cr (i) the distances among row markers are interpreted as an inverse function of similarities, in such a way that closer markers (objects) are more similar; 
+\cr
+\cr (ii) the lengths of the column markers (vectors) approximate the standard deviation of the variables; 
+\cr
+\cr (iii) the cosines of the angles among the column vectors approximate the correlations among variables in such a way that small acute angles are associated with variables with high positive correlations; obtuse angles near to the straight angle are associated with variables with high negative correlations and right angles are associated with non-correlated variables. In the same way, the cosines of the angles among the variable markers and the axes (Principal Components) approximate the correlations between them; 
+\cr
+\cr (iv) the order of the orthogonal projections of the row markers (points) onto a column marker (vector) approximates the order of the row elements (values) in that column.
+}
 \author{
 Jaime Egido <jegido@usal.es>
 }
@@ -45,4 +56,3 @@ Jaime Egido <jegido@usal.es>
 \examples{
 dynBiplot("en")
 }
-

@@ -27,7 +27,8 @@ Esta sección se muestra si estamos tratando un cubo de datos.
   \item \emph{Referencia:} valores de la variable seleccionada como referencia.
   \item \emph{Biplot Global}: trata el cubo de datos como una matriz de dos dimensiones.
   \item \emph{Trayectorias para filas y columnas}, ambas activadas por defecto.
-  \item \emph{Etiquetas} de las trayectorias para \emph{filas y columnas}, ambas activadas por defecto.
+  \item \emph{p-valor} para mostrar la trayectoria solo con puntos significativos.
+  \item \emph{Etiquetas} de las trayectorias para \emph{filas y columnas}, ambas activadas por defecto. Es posible \emph{concatenar} la etiqueta de la fila y de las situaciones.
 }
 }
 \section{Botones generales}{

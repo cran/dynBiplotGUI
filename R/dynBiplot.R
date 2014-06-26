@@ -1,9 +1,9 @@
 dynBiplot <-
 function (lang="es")
 {
-	#require(tcltk2)
+	#library(tcltk)
+	#library(tcltk2)
 	#library(tkrplot)
-	#if (.Platform$OS.type=="windows") library(RODBC)
 	#
 	# 	b.x 	- Archivo de entrada
 	# 	b.x2 	- Matriz de 2 vias
@@ -13,7 +13,7 @@ function (lang="es")
 	
 	#	Variables
 	#
-	mens.leer <- "Datos a tratar"		# referencia del archivo de entrada
+#	mens.leer <- "Datos a tratar"		# referencia del archivo de entrada
 	bt.leer  <- tclVar(0)		# tipo de archivo a cargar
 	bt.le  <- 1					# niveles de situaciones
 	tb  <- tclVar("1")			# tipo de biplot HJ
@@ -45,6 +45,9 @@ function (lang="es")
 	ittp <- tclVar(0)			# indicador de existe ventana grafica
 	igx  <- tclVar(0)			# indicador rotar x en el grafico
 	igy  <- tclVar(0)			# indicador rotar y en el grafico
+	ipv  <- tclVar(1)			# indicador de p-valor para trayectorias
+	ivs  <- tclVar(0)			# indicador de concatenacion etiquetas trayectorias
+	pval <- tclVar(0.05)		# margen para p-valor
 	ex1 <- tclVar()				# variable rotar -x
 	ex2 <- tclVar()				# variable rotar +x
 	ey1 <- tclVar()				# variable rotar -y
@@ -93,7 +96,9 @@ function (lang="es")
 	if(lang=="es")		lit <- lit0["es"]		# espanol
 	else if(lang=="fr") lit <- lit0["fr"]		# frances
 	else if(lang=="pt") lit <- lit0["pt"]		# portugues
-		else 			lit <- lit0["en"]		# ingles, en los demas casos
+		else {			lit <- lit0["en"]		# ingles, en los demas casos
+			if(lang!="en") print("Language not implemented. We use English.")
+			}
 	bt.lit <- apply(lit,2,paste)				# forzar comillas
 	#
 	#	Funciones	<<<<<<<==========================
@@ -131,6 +136,7 @@ function (lang="es")
 	#		leer excel
 	#
 	leer.excel <- function()	{	
+		require(RODBC)
 		if(1==2) b.x <- NULL				# para evitar error en R CMD check
 		file1<-tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
 		if (!length(file1))   return()
@@ -250,7 +256,9 @@ function (lang="es")
 		bt.t <- max(bt.leve) 		# Referencia provisional hasta seleccionarla
 		# elimino las columnas de etiquetas y situaciones
 		bt.x <- b.x[sapply(b.x,is.numeric)]	# solo datos numericos
-		bt.x3 <- array(0,c(nrow(b.x)/bt.nl,ncol(bt.x),bt.nl))
+		if(nrow(bt.x)%%bt.nl==0) 	# ckeck bloques completos
+			bt.x3 <- array(0,c(nrow(b.x)/bt.nl,ncol(bt.x),bt.nl))
+			else stop(bt.lit[133,])	# ERROR: bloques incompletos
 		# 	carga la via 3
 		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,b.x[vs]==bt.leve[k]))
 		#
@@ -298,23 +306,39 @@ function (lang="es")
 
 	formato <- function() {
 		if (tclvalue(ifd)=="1") return()		# Termina la funcion
+		if (1==2) b.fx <- b.fy <- NULL			# para evitar error en R CMD check
+		tix <- tiy <- 1							# indicadores de cargar formato
 		
 		if (tclvalue(ifo)=="1") {				# chequear formatos leidos
-			if (nrow(b.x2)!=nrow(b.fx)) {print(bt.lit[122,])	# ERROR: formato filas
+			if(!exists("b.fx")) {print(bt.lit[122,])	# ERROR: formato filas
 								tclvalue(ifo) <- "0"	# reset para dar formato
-								print(paste(nrow(b.x2),"!=",nrow(b.fx)))
-										}
-			if (ncol(b.x2)!=nrow(b.fy)) {print(bt.lit[123,])	# ERROR: formato columnas
+								tix <- 0		# indicador de error formato x
+								}
+			else 
+				if (any(rownames(b.x2)!=rownames(b.fx))) 
+								{print(bt.lit[122,])	# ERROR: formato filas
 								tclvalue(ifo) <- "0"	# reset para dar formato
-								print(paste(ncol(b.x2),"!=",nrow(b.fy)))
-										}
+								tix <- 0		# indicador de error formato x
+								}
+			if(!exists("b.fy")) {print(bt.lit[123,])	# ERROR: formato columnas
+								tclvalue(ifo) <- "0"	# reset para dar formato
+								tiy <- 0		# indicador de error formato x
+								}
+			else 					
+				if (any(colnames(b.x2)!=rownames(b.fy))) 
+								{print(bt.lit[123,])	# ERROR: formato columnas
+								tclvalue(ifo) <- "0"	# reset para dar formato
+								tiy <- 0		# indicador de error formato x
+								}							
 			}
+		else {tix <- tiy <- 0}					# indicador para preparar formatos	
 		#	Inicializacion de los data frame de formatos
-		else {									# No cargamos formato desde archivo
-			if (1==2) b.fx <- b.fy <- NULL		# para evitar error en R CMD check
+		if (tix==0) {							# No cargamos formato desde archivo
 			b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=16,lty=1,lwd=1,
 						pos=2,tcol="#0000ff",type=1, stringsAsFactors = F)
 			rownames(b.fx) <<- rownames(b.x2)
+					}
+		if (tiy==0) {							# No cargamos formato desde archivo
 			b.fy <<- data.frame(eti=colnames(b.x2),ecol="#000000",pch=18,lty=1,lwd=2,
 						pos=2,tcol="#000000",type=1, stringsAsFactors = F)
 			rownames(b.fy) <<- colnames(b.x2)
@@ -728,7 +752,7 @@ function (lang="es")
 	tk2tip(tb22.but, bt.lit[68,])		# Marca fila y selecciona
 	tkpack(tb22.but)
 	
-	#	Opciones grafico
+	#	Opciones grafico del panel 4
 	#	etiquetas
 	fr.o1 <- tk2frame(fr.s5,padding="2",relief="sunken")
 	tkpack(tk2label(fr.o1,text=bt.lit[70,],background="honeydew"),	# Etiquetas para filas
@@ -765,6 +789,9 @@ function (lang="es")
 			tk2checkbutton(fr27.2, variable=itrr), 
 			tk2label(fr27.2,text=bt.lit[79,],background="palegreen"),	# columnas
 			tk2checkbutton(fr27.2, variable=itrc), 
+			tk2label(fr27.2,text=bt.lit[130,],background="palegreen"),	# p-valor
+			tk2checkbutton(fr27.2, variable=ipv), 
+			tk2entry(fr27.2, textvariable=pval, width=4),
 			side="left", fill="x")
 		fr27.3 <- tk2frame(fr.s4, padding="2")
 		tkpack(tk2label(fr27.3, text=bt.lit[80,], width=15,	# Etiquetas - filas
@@ -772,6 +799,9 @@ function (lang="es")
 			tk2checkbutton(fr27.3, variable=ietzr), 
 			tk2label(fr27.3,text=bt.lit[79,],background="palegreen"),	# columnas
 			tk2checkbutton(fr27.3, variable=ietzc), 
+			tk2label(fr27.3,text=bt.lit[131,],background="palegreen",	# Concatenar
+					tip=bt.lit[132,]),	# Etiquetas = nombre de variable + situación
+			tk2checkbutton(fr27.3, variable=ivs), 
 			side="left", fill="x")
 		tkpack(fr27, fr27.2, fr27.3, side="top")
 		}
@@ -926,24 +956,9 @@ function (lang="es")
 	#
 	#	Funcion de ayuda
 	#
-	ayuda1 <- function() {
-		topic <- "panelData_en"				# por defecto ingles
-		if(lang=="es") topic <- paste("panelData_",lang,sep="")
-		print(help(topic))
-	}
-	ayuda2 <- function() {
-		topic <- "panelFormat_en"
-		if(lang=="es") topic <- paste("panelFormat_",lang,sep="")
-		print(help(topic))
-	}
-	ayuda3 <- function() {
-		topic <- "panelVariables_en"
-		if(lang=="es") topic <- paste("panelVariables_",lang,sep="")
-		print(help(topic))
-	}
-	ayuda4 <- function() {
-		topic <- "panelAnalysis_en"
-		if(lang=="es") topic <- paste("panelAnalysis_",lang,sep="")
+	ayuda <- function(topic) {			# por ejemplo: topic <- "panelAnalysis"
+		if(lang=="es") topic <- paste(topic,"_",lang,sep="")
+			else topic <- paste(topic,"_en",sep="")
 		print(help(topic))
 	}
 
@@ -957,7 +972,9 @@ function (lang="es")
 		fr.d1 <-tk2labelframe(tb1,text=bt.lit[93,])		# leer datos
 		tb1.t0 <- tk2frame(tb1)
 		tb1.t1 <- tk2label(tb1.t0,text=bt.lit[94,],background="yellow",width=50)	# Carga de datos
-		tb1.t2 <- tk2button(tb1.t0,text="?",width=4,command=ayuda1,tip=bt.lit[103,])	# Ayuda
+		topic <- "panelData"
+		tb1.t2 <- tk2button(tb1.t0,text="?",width=4,
+					command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
 		tkpack(tb1.t1, side="left", fill="x")
 		tkpack(tb1.t2, side="right")
 		tkpack(tb1.t0,fr.d0, fr.d1, fr.d2, side="top", fill="x")
@@ -992,7 +1009,9 @@ function (lang="es")
 		sep1 <- tk2separator(tb2)
 		tb2.t0 <- tk2frame(tb2)
 		tb2.t1 <- tk2label(tb2.t0,text=bt.lit[101,],background="salmon",width=50)	# Formato de datos
-		tb2.t2 <- tk2button(tb2.t0,text="?",width=4,command=ayuda2,tip=bt.lit[103,])	# Ayuda
+		topic <- "panelFormat"
+		tb2.t2 <- tk2button(tb2.t0,text="?",width=4,
+						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
 		tkpack(tb2.t1, side="left", fill="x")
 		tkpack(tb2.t2, side="right")
 		tkpack(tb2.t0, fr.f2, sep1, fr.f1, side="top", fill="x")
@@ -1005,10 +1024,9 @@ function (lang="es")
 		tb3.t0 <- tk2frame(tb3)
 		tb3.t1 <- tk2label(tb3.t0,text=bt.lit[102,],	# Seleccion de filas y columnas
 						background="lightblue",width=50)
-		topic <- "dynBiplot"
-		pkg_ref <- "dynBiplotGUI"				
+		topic <- "panelVariables"
 		tb3.t2 <<- tk2button(tb3.t0,text="?",width=4, 
-						command=ayuda3,tip=bt.lit[103,])	# Ayuda
+						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
 		tkpack(tb3.t1, side="left", fill="x")
 		tkpack(tb3.t2, side="right")
 		tkpack(tb3.t0, fill="x")
@@ -1021,7 +1039,9 @@ function (lang="es")
 		tb4.t0 <- tk2frame(tb4)
 		tb4.t1 <- tk2label(tb4.t0,text=bt.lit[104,],	# Opciones de analisis
 					background="lightgreen",width=50)
-		tb4.t2 <- tk2button(tb4.t0,text="?",width=4,command=ayuda4,tip="Ayuda")
+		topic <- "panelAnalysis"			
+		tb4.t2 <- tk2button(tb4.t0,text="?",width=4,
+						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
 		tkpack(tb4.t1, side="left", fill="x")
 		tkpack(tb4.t2, side="right")
 		tkpack(tb4.t0, fill="x")
@@ -1110,15 +1130,18 @@ function (lang="es")
 	Textotc <- function (x,fx,e) {
 		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
 		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		text(x[,1], x[,2], labels=paste(e,rownames(x),sep=""), 
-			col=fx$tcol,cex=0.6, pos=3)
+		if (tclvalue(ivs)==1) tmplabel <- paste(e,rownames(x),sep="")	# concatenar etiquetas
+			else tmplabel <- rownames(x)
+		text(x[,1], x[,2], labels=tmplabel, 
+			col=fx$tcol,cex=0.5, pos=3)
 	}
 	Textotr <- function (x,fx,e) {
 		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
 		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
 		x <- as.numeric(tclvalue(vesc))* x			# reescala x
-		text(x[,1], x[,2], labels=paste(e,rownames(x),sep=""), 
-			col=fx$tcol,cex=0.6, pos=3)
+		if (tclvalue(ivs)==1) tmplabel <- paste(e,rownames(x),sep="")
+			else tmplabel <- rownames(x)
+		text(x[,1], x[,2], labels=tmplabel, col=fx$tcol,cex=0.5, pos=3)
 	}
 	#	dibujo biplot
 	#
@@ -1194,12 +1217,19 @@ function (lang="es")
 		#	de variables
 			if (tclvalue(itrc)=="1")
 			for (i in (1:dim(bt.res.ty)[3])[bt.fyg$inl]) {
-				tmp <- bt.res.ty[,c(dim1,dim2),i]
+				if(tclvalue(ipv)=="1") 		# indicador de p-valor
+					{tpval <- as.numeric(tclvalue(pval))
+					tmp <- bt.res.ty[,c(dim1,dim2),i][bt.Prc[i,]<tpval,]	# p-valor significativo
+					}
+				else
+					tmp <- bt.res.ty[,c(dim1,dim2),i]
 				tmpf <- bt.fyg[i,]
 				Trayectc(tmp,tmpf)
 				if (tclvalue(ietzc)=="1") {
-					tmpe <- bt.fyg$eti[i]
-					Textotc(tmp,tmpf,tmpe)
+					if(length(tmp) == 0) return()
+					else {
+						tmpe <- bt.fyg$eti[i]
+						Textotc(tmp,tmpf,tmpe) }
 			}}
 		#	de individuos
 		if (tclvalue(itrr)=="1")
@@ -1242,6 +1272,7 @@ function (lang="es")
 				{{Imagen svg} {.svg}} 
 				{{Imagen wmf} {.wmf}} 
 				{{Imagen pdf} {.pdf}}
+				{{Imagen eps} {.eps .ps}}
 				{{All files} *}
 				"	))
 		# por defecto, png
@@ -1250,10 +1281,14 @@ function (lang="es")
 		nn <-  tolower(unlist(strsplit(FileName,"\\."))[[2]])
 		
 		if (nn=="pdf") pdf(FileName, width = 7, height = 7)
+		else if (nn=="eps" | nn=="ps")
+			postscript(file = FileName, width = 7, height = 7, horizontal = FALSE,
+			onefile = FALSE, paper = "special", 
+			family = "URWHelvetica",fonts=c("sans","serif"))
 		else if (nn=="jpg" | nn=="jpeg")
 			jpeg(FileName, width = 7, height = 7, units = "in", 
 				restoreConsole = FALSE, res = 96, quality = 100)
-		else if (nn=="svg" | nn=="jpeg")
+		else if (nn=="svg")
 			svg(FileName, width = 7, height = 7)
 		else if (nn=="wmf")
 			{plotBiplot1 (screen = FALSE)
@@ -1378,6 +1413,7 @@ function (lang="es")
 	Sys.sleep(0.1)							# para bug PR#15150
 	# tkwm.title(tt,bt.lit[2,]) 				# "Biplot Dinamico"
 	tktitle(tt)<-(bt.lit[2,]) 				# "Biplot Dinamico"
+	fontTextLabel <- tkfont.create(family="times",size=12)
 	
 	nb <- tk2notebook(tt,tabs=c(bt.lit[3,],bt.lit[4,],bt.lit[5,],bt.lit[6,]))
 	tkpack(nb,fill="both")
@@ -1429,6 +1465,7 @@ function (lang="es")
 	#
 	##	 Botones de la ventana general:
 	frame3 <- tk2frame(down.frm,relief="sunken",borderwidth=2,padding="2")
+	mens.leer <- bt.lit[93,]			# Leer datos
 	la <- tk2label(frame3,text=mens.leer, foreground="red")
 	tkpack(la)							# para mostrar a pie de pagina
 	tkpack(frame3, side="left") 

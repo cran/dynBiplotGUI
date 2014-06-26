@@ -30,8 +30,8 @@ Etiquetas:;Labels:;tags:;Tags:
 Variable que tiene las etiquetas;Variable containing the labels;Une variable qui a les étiquettes;Variável que contém as etiquetas
 Situaciones:;Situations:;Situations:;Situações:
 Variable que tiene las situaciones;Variable containing the situations;Une variable qui a les situations;Variável que contém as situações
-AVISO: una fila tiene todos 0. Se pone 0.1 a una celda;WARNING: A row has all 0. Add 0.1 to any cell;Avis: une ligne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma linha tem todos os 0. Adicionar 0,1 a uma célula
-AVISO: una columna tiene todos 0. Se pone 0.1 a una celda;WARNING: A column has all 0. Add  0.1 to any cell;Avis: une colonne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma coluna tem todos os 0. Adicionar 0,1 a uma célula
+AVISO: una fila tiene todos 0. Se pone 0.1 a una celda;WARNING: A row has all 0. Add 0.1 to any cell;AVIS: une ligne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma linha tem todos os 0. Adicionar 0,1 a uma célula
+AVISO: una columna tiene todos 0. Se pone 0.1 a una celda;WARNING: A column has all 0. Add  0.1 to any cell;AVIS: une colonne a tous les 0. Ajouter 0,1 à une cellule;AVISO: uma coluna tem todos os 0. Adicionar 0,1 a uma célula
 Editar formatos:;Edit format:;Modifier les format:;Editar formato:
 Datos originales;original data;Données originales;Dados originais
 Matriz 2 vías;Matrix 2-way;Matrice 2 voies;Matriz 2-factores
@@ -120,11 +120,15 @@ permuta y;swap y;swap y;permutar y
 Escalar x;Scalar x;Échelle x;padronizar x
 Límites... x:;Limits... x:;Limites... x:;Limites... x:
 ERROR: menos filas que columnas;ERROR: fewer rows than columns;ERREUR: moins de lignes que de colonnes;ERRO: menos linhas do que colunas
-ERROR: mal formato de filas;ERROR: bad format of rows;ERREUR: mauvais format de lignes;ERRO: bad formato de linhas
-ERROR: mal formato de columnas;ERROR: bad format of columns;ERREUR: mauvais format de colonnes;ERRO: bad formato de colunas
+AVISO: mal formato de filas;WARNING: bad format of rows;AVIS: mauvais format de lignes;AVISO: bad formato de linhas
+AVISO: mal formato de columnas;WARNING: bad format of columns;AVIS: mauvais format de colonnes;AVISO: bad formato de colunas
 R2 - columnas, plano: ;R2 - columns, plane: ;R2 - colonnes, plan: ;R2 - colunas, plano: 
 La inercia escogida excluye todas las filas;Chosen inertia excludes all rows;Inertie choisi exclut toutes les lignes;Inércia escolhido exclui todas as linhas
 La inercia escogida excluye todas las columnas;Chosen inertia excludes all columns;Inertie choisi exclut toutes les colonnes;Inércia escolhido exclui todas as colunas
 F anova - plano: ;F anova - plane: ;F anova - plan: ;F anova - plano: 
 p-valor F - plano: ;p-value F - plane: ;p-value F - plan: ;valor-p F - plano: 
 R2 - filas, plano: ;R2 - rows, plane: ;R2 - lignes, plan: ;R2 - linhas, plano: 
+p-valor;p-value;p-value;valor-p
+Concatenar;Concatenate;Concaténer;Concatenar
+Etiquetas = nombre de variable + situación;Labels = variable name + situation;Tags = nom de variable + situation;Etiqueta = nome da variável + situação
+ERROR: bloques incompletos;ERROR: incomplete blocks;ERREUR: blocs incomplets;ERRO: blocos incompletos
