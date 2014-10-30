@@ -1,5 +1,5 @@
 \name{dynBiplotGUI-package}
-\Rdversion{1.1.0}
+\Rdversion{1.1.1}
 \alias{dynBiplotGUI-package}
 \alias{dynBiplotGUI}
 \docType{package}
@@ -14,14 +14,14 @@ A GUI to solve Dynamic Biplot, classic Biplot and HJ-Biplot. Try matrices of 2-w
 \tabular{ll}{
 Package: \tab dynBiplotGUI\cr
 Type: \tab Package\cr
-Version: \tab 1.1.0\cr
-Date: \tab 2014-06-26\cr
+Version: \tab 1.1.1\cr
+Date: \tab 2014-10-30\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
 The dynBiplot function initialises the GUI.
 \cr At present, dynBiplotGUI supports Spanish, English, French, Portuguese.
-\cr dynBiplotGUI is tested on Windows 7 (32 & 64 bits), Windows XP.
+
 }
 \author{
 Jaime Egido

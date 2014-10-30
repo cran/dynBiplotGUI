@@ -118,16 +118,21 @@ function (lang="es")
 	#
 	#		leer archivos	------------
 	#
-	leer.archivos <- function()	{	
+	leer.archivos <- function()	{
 	if (tclvalue(icar)=="1") {		# Datos ya cargados
 		print(bt.lit[20,])			# ERROR datos ya cargados
 		return()
-	}		
-	if (tclvalue(bt.leer)=="1") leer.excel()
-        else if (tclvalue(bt.leer)=="2") leer.df()
-			else if (tclvalue(bt.leer)=="3") leer.txt()
-				else leer.clipboard()
-	#CODIFICAR: Si no seleccion: break.
+	}
+	if(1==2) b.x <- b.x				# para evitar error en R CMD check	
+	# if (tclvalue(bt.leer)=="1") leer.excel()
+	if (tclvalue(bt.leer)=="1") b.x <<- leer.csv()
+        # else if (tclvalue(bt.leer)=="2") leer.df()
+        else if (tclvalue(bt.leer)=="2") b.x <<- leer.df()
+			else if (tclvalue(bt.leer)=="3") b.x <<- leer.txt()
+				else if (tclvalue(bt.leer)=="4") b.x <<- leer.spss()
+					else b.x <<- leer.clipboard()
+	if (length(b.x)==0) {print(bt.lit[99,])		# -Selecciona tipo de fichero-
+						return() }
 	tkconfigure(la, text=mens.leer, foreground="black", background="yellow2")	# para mostrar a pie de pagina
 	tk2tip(la, bt.lit[21,])			# Fichero cargado
 	cubo()
@@ -135,34 +140,45 @@ function (lang="es")
 	}
 	#		leer excel
 	#
-	leer.excel <- function()	{	
-		require(RODBC)
-		if(1==2) b.x <- NULL				# para evitar error en R CMD check
-		file1<-tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
-		if (!length(file1))   return()
-		channel <- odbcConnectExcel2007(file1,readOnly = TRUE)
-		aa <- sqlTables(channel,errors=T)$TABLE_TYPE=="SYSTEM TABLE"
-		hojastabla <- sqlTables(channel,errors=T)$TABLE_NAME[aa]
-		hojastabla <- sub("$","",hojastabla,fixed=T)	# quita caracter
-		whoja <- tktoplevel()
-		tkwm.title(whoja,bt.lit[22,])					# Selecciona
-		tl <- tk2listbox(whoja, height = min(length(hojastabla),15),
-				values=hojastabla, selectmode = "browse",background = "white")
-		tkpack(tk2label(whoja, text = bt.lit[23,]))		# Selecciona tabla
-		tkpack(tl)
-		tkselection.set(tl, 0)
-		OnOK <- function()	{
-			bt.hoja <- hojastabla[as.numeric(tkcurselection(tl)) + 1]
-			b.x <<- sqlFetch(channel, bt.hoja)
-			mens.leer <<- bt.hoja
-			odbcClose(channel)
-			tkdestroy(whoja)
+	# leer.excel <- function()	{	
+		# require(RODBC)
+		# if(1==2) b.x <- NULL				# para evitar error en R CMD check
+		# file1<-tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
+		# if (!length(file1))   return()
+		# channel <- odbcConnectExcel2007(file1,readOnly = TRUE)
+		# aa <- sqlTables(channel,errors=T)$TABLE_TYPE=="SYSTEM TABLE"
+		# hojastabla <- sqlTables(channel,errors=T)$TABLE_NAME[aa]
+		# hojastabla <- sub("$","",hojastabla,fixed=T)	# quita caracter
+		# whoja <- tktoplevel()
+		# tkwm.title(whoja,bt.lit[22,])					# Selecciona
+		# tl <- tk2listbox(whoja, height = min(length(hojastabla),15),
+				# values=hojastabla, selectmode = "browse",background = "white")
+		# tkpack(tk2label(whoja, text = bt.lit[23,]))		# Selecciona tabla
+		# tkpack(tl)
+		# tkselection.set(tl, 0)
+		# OnOK <- function()	{
+			# bt.hoja <- hojastabla[as.numeric(tkcurselection(tl)) + 1]
+			# b.x <<- sqlFetch(channel, bt.hoja)
+			# mens.leer <<- bt.hoja
+			# odbcClose(channel)
+			# tkdestroy(whoja)
+		# }
+		# OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
+		# tkpack(OK.but)
+		# tkfocus(whoja) 
+		# tkwait.window(whoja)
+		# }
+	#		leer csv, sep=";", dec="."
+	#
+	leer.csv <- function()	{	
+		# if(1==2) b.x <- NULL				# para evitar error en R CMD check
+		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{CSV files} {.csv}}"))
+		if (mens.leer=="") return()
+		# dato <- read.csv(mens.leer, header=T, sep=";", dec=".")
+		read.csv(mens.leer, header=T, sep=";", dec=".")
+		# b.x <<- as.data.frame(dato)
 		}
-		OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
-		tkpack(OK.but)
-		tkfocus(whoja) 
-		tkwait.window(whoja)
-		}
+
 	#		leer dataframe
 	# 
 	leer.df <- function()	{
@@ -189,18 +205,28 @@ function (lang="es")
 	#		leer txt
 	#
 	leer.txt <- function()	{
-		b.x <- NULL
+		# b.x <- NULL
 		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{Text files} {.txt}}"))
-		if (!length(mens.leer)) return()
-		dato=read.table(mens.leer, header=T)
-		b.x <<- as.data.frame(dato)
+		if (mens.leer=="") return()
+		read.table(mens.leer, header=T)
+		# b.x <<- as.data.frame(dato)
+		}
+	#		leer SPSS
+	#
+	leer.spss <- function()	{
+		library(foreign)
+		# b.x <- NULL
+		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
+		if (mens.leer=="") return()
+		foreign::read.spss(mens.leer, use.value.labels=F,to.data.frame=T)
+		# b.x <<- as.data.frame(dato)
 		}
 	#		leer clipboard
 	#
 	leer.clipboard <- function()	{
-		b.x <- NULL
+		# b.x <- NULL
 		mens.leer <<- bt.lit[26,]		# Portapapeles
-		b.x <<- read.table("clipboard",header=T)
+		read.table("clipboard",header=T)
 		}
 	#
 	#	Generacion del cubo de 3 vias
@@ -217,7 +243,7 @@ function (lang="es")
 		tclvalue(vsit) <- colnames(b.x)[[2]]		# valor inicial a mostrar
 		bt.cubo.b <<- tk2button(fr12,text=bt.lit[27,], command=cubo.gen)	# Generar matrices
 		tkpack(tk2label(fr12.2, text=bt.lit[28,],background="lightyellow",width=10),	# Etiquetas
-			tk2combobox(fr12.2,values=vari,textvariable=veti,width=10),side="left")
+			tk2combobox(fr12.2,values=vari,textvariable=veti,width=15),side="left")
 		tk2tip(fr12.2,bt.lit[29,])				# Variable que tiene las etiquetas
 		if (tclvalue(i3v)=="1") {
 			tkpack(tk2label(fr12.3,text=bt.lit[30,],background="lightyellow",width=10),	# Situaciones
@@ -331,7 +357,7 @@ function (lang="es")
 								tiy <- 0		# indicador de error formato x
 								}							
 			}
-		else {tix <- tiy <- 0}					# indicador para preparar formatos	
+		else {tix <- tiy <- 0}					# indicador para preparar formatos
 		#	Inicializacion de los data frame de formatos
 		if (tix==0) {							# No cargamos formato desde archivo
 			b.fx <<- data.frame(eti=rownames(b.x2),ecol="#0000ff",pch=16,lty=1,lwd=1,
@@ -348,7 +374,6 @@ function (lang="es")
 		row0.frm <- tk2frame(tb1,relief="sunken",padding="2")
 		tkpack(tk2label(row0.frm,text=bt.lit[34,],
 					background="lightyellow"),fill="x")	# Editar formatos
-		
 		b.x <- b.x									# para evitar error en R CMD check
 		row.erow <- function()	fix(b.fx)
 		row.ecol <- function()	fix(b.fy)
@@ -992,14 +1017,16 @@ function (lang="es")
 		tkpack(tk2label(fr1,text=bt.lit[99,],background="lightyellow"))	# Selecciona tipo de fichero
 		if (.Platform$OS.type=="windows") tmp="enable"	
 			else tmp="disable"
-		tkpack(tk2radiobutton(fr1, command=leer.archivos, text="Excel",	# solo windows
+		tkpack(tk2radiobutton(fr1, command=leer.archivos, text="CSV",	# solo windows
 							 value=1, variable=bt.leer,state=tmp), 
 				tk2radiobutton(fr1, command=leer.archivos, text="R",
 							 value=2, variable=bt.leer), 
 				tk2radiobutton(fr1, command=leer.archivos, text="txt",
 							 value=3, variable=bt.leer),	
+				tk2radiobutton(fr1, command=leer.archivos, text="SPSS",
+							 value=4, variable=bt.leer),			 
 				tk2radiobutton(fr1, command=leer.archivos, text=bt.lit[100,],	# portapapeles
-							 value=4, variable=bt.leer), side="left")	
+							 value=5, variable=bt.leer), side="left")	
 		#
 		tkpack(fr11, fr10, fr1, side="top")
 	}
@@ -1220,6 +1247,7 @@ function (lang="es")
 				if(tclvalue(ipv)=="1") 		# indicador de p-valor
 					{tpval <- as.numeric(tclvalue(pval))
 					tmp <- bt.res.ty[,c(dim1,dim2),i][bt.Prc[i,]<tpval,]	# p-valor significativo
+					if(length(tmp)==0) next
 					}
 				else
 					tmp <- bt.res.ty[,c(dim1,dim2),i]

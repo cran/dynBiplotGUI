@@ -1,5 +1,5 @@
 \name{dynBiplot}
-\Rdversion{1.1.0}
+\Rdversion{1.1.1}
 \alias{dynBiplot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -19,7 +19,7 @@ dynBiplot(lang = "es")
 }
 \details{
 The program guides the user through four phases:
-\cr 1- Load data (mandatory). From txt files, objects R, clipboard or Excel. Try matrices of 2-way and 3-way.
+\cr 1- Load data (mandatory). From CSV files, txt files, objects R, clipboard or SPSS. Try matrices of 2-way and 3-way.
 \cr 2- Data format (optional).
 \cr 3- Selection of variables and individuals for biplot graphics.
 \cr 4- Selecting Options for the chart. If 3-way data, options for trajectories.

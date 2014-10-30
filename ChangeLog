@@ -1,3 +1,16 @@
+VERSION 1.1.1
+30 October 2014
+News features
+
+* Read data from SPSS.
+* Now do not read data directly from Excel.
+* Read data from CSV files.
+* Error control if you have not selected a file.
+
+Minor bug fix.
+
+* No drawing trajectories when all the p-values of a variable were not significant.
+
 VERSION 1.1.0
 26 June 2014
 News features
