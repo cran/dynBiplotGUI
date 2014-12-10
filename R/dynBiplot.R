@@ -13,7 +13,6 @@ function (lang="es")
 	
 	#	Variables
 	#
-#	mens.leer <- "Datos a tratar"		# referencia del archivo de entrada
 	bt.leer  <- tclVar(0)		# tipo de archivo a cargar
 	bt.le  <- 1					# niveles de situaciones
 	tb  <- tclVar("1")			# tipo de biplot HJ
@@ -123,11 +122,11 @@ function (lang="es")
 		print(bt.lit[20,])			# ERROR datos ya cargados
 		return()
 	}
-	if(1==2) b.x <- b.x				# para evitar error en R CMD check	
+	if(1==2) b.x <- b.x				# para evitar error en R CMD check
 	# if (tclvalue(bt.leer)=="1") leer.excel()
 	if (tclvalue(bt.leer)=="1") b.x <<- leer.csv()
-        # else if (tclvalue(bt.leer)=="2") leer.df()
-        else if (tclvalue(bt.leer)=="2") b.x <<- leer.df()
+        else if (tclvalue(bt.leer)=="2") leer.df()
+        # else if (tclvalue(bt.leer)=="2") b.x <<- leer.df()
 			else if (tclvalue(bt.leer)=="3") b.x <<- leer.txt()
 				else if (tclvalue(bt.leer)=="4") b.x <<- leer.spss()
 					else b.x <<- leer.clipboard()
@@ -135,7 +134,7 @@ function (lang="es")
 						return() }
 	tkconfigure(la, text=mens.leer, foreground="black", background="yellow2")	# para mostrar a pie de pagina
 	tk2tip(la, bt.lit[21,])			# Fichero cargado
-	cubo()
+	cubo(b.x)
 	tclvalue(icar) <- "1"			# indicador de datos cargados
 	}
 	#		leer excel
@@ -171,12 +170,9 @@ function (lang="es")
 	#		leer csv, sep=";", dec="."
 	#
 	leer.csv <- function()	{	
-		# if(1==2) b.x <- NULL				# para evitar error en R CMD check
 		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{CSV files} {.csv}}"))
 		if (mens.leer=="") return()
-		# dato <- read.csv(mens.leer, header=T, sep=";", dec=".")
 		read.csv(mens.leer, header=T, sep=";", dec=".")
-		# b.x <<- as.data.frame(dato)
 		}
 
 	#		leer dataframe
@@ -205,57 +201,56 @@ function (lang="es")
 	#		leer txt
 	#
 	leer.txt <- function()	{
-		# b.x <- NULL
 		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{Text files} {.txt}}"))
 		if (mens.leer=="") return()
 		read.table(mens.leer, header=T)
-		# b.x <<- as.data.frame(dato)
 		}
 	#		leer SPSS
 	#
 	leer.spss <- function()	{
 		library(foreign)
-		# b.x <- NULL
 		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
 		if (mens.leer=="") return()
 		foreign::read.spss(mens.leer, use.value.labels=F,to.data.frame=T)
-		# b.x <<- as.data.frame(dato)
 		}
 	#		leer clipboard
 	#
 	leer.clipboard <- function()	{
-		# b.x <- NULL
 		mens.leer <<- bt.lit[26,]		# Portapapeles
 		read.table("clipboard",header=T)
 		}
 	#
 	#	Generacion del cubo de 3 vias
 	# 		fichero de entrada b.x
-	cubo <- function() {
+	cubo <- function(x) {
 		# variable de etiquetas y referencia:
 		#	panel de datos - para generar el cubo
-		b.x <- b.x							# para evitar error en R CMD check
+		# if (1==2) b.x <- b.x						# para evitar error en R CMD check
 		fr12 <- tk2frame(fr.d2,relief="raised", borderwidth=2,padding="2")
 		fr12.2 <- tk2frame(fr12)
 		fr12.3 <- tk2frame(fr12)
-		vari <- colnames(b.x)
-		tclvalue(veti) <- colnames(b.x)[[1]]		# valor inicial a mostrar
-		tclvalue(vsit) <- colnames(b.x)[[2]]		# valor inicial a mostrar
-		bt.cubo.b <<- tk2button(fr12,text=bt.lit[27,], command=cubo.gen)	# Generar matrices
-		tkpack(tk2label(fr12.2, text=bt.lit[28,],background="lightyellow",width=10),	# Etiquetas
+		# vari <- colnames(b.x)
+		vari <- colnames(x)
+		# tclvalue(veti) <- colnames(b.x)[[1]]		# valor inicial a mostrar
+		tclvalue(veti) <- colnames(x)[[1]]		# valor inicial a mostrar
+		tclvalue(vsit) <- colnames(x)[[2]]		# valor inicial a mostrar
+		bt.cubo.b <<- tk2button(fr12,text=bt.lit[27,], command=function() cubo.gen(x))	# Generar matrices
+		tkpack(tk2label(fr12.2, text=bt.lit[28,],background="lightyellow",width=12),	# Etiquetas
 			tk2combobox(fr12.2,values=vari,textvariable=veti,width=15),side="left")
 		tk2tip(fr12.2,bt.lit[29,])				# Variable que tiene las etiquetas
 		if (tclvalue(i3v)=="1") {
-			tkpack(tk2label(fr12.3,text=bt.lit[30,],background="lightyellow",width=10),	# Situaciones
-				tk2combobox(fr12.3,values=vari,textvariable=vsit,width=10),side="left")
+			tkpack(tk2label(fr12.3,text=bt.lit[30,],background="lightyellow",width=12),	# Situaciones
+				tk2combobox(fr12.3,values=vari,textvariable=vsit,width=15),side="left")
 				tk2tip(fr12.3, bt.lit[31,])	}	# Variable que tiene las situaciones
 		# los valores seleccionados se recogen al pulsar el boton
 		tkpack(fr12.2, fr12.3, side="top")
 		tkpack(fr12, bt.cubo.b)	
 	}
 	
-	cubo.gen <- function() {
-		ifelse (tclvalue(i3v)=="1", cubo3(), cubo2())
+	cubo.gen <- function(x) {
+		ifelse (tclvalue(i3v)=="1", {b.x3 <<- cubo3(x)
+									b.x2 <<- b.x3[,,1]}, 	# provisional para etiquetas
+									b.x2 <<- cubo2(x))
 		tkconfigure(bt.cubo.b,state="disable")
 		formato()
 		llena.lbr()					# Llamada a la funcion seleccion de variables
@@ -263,55 +258,69 @@ function (lang="es")
 		tk2notetab.select(nb,bt.lit[5,])	# Variables
 		}
 		
-	cubo2 <- function() {
-		b.x <- b.x							# para evitar error en R CMD check
+	cubo2 <- function(x) {
+		# b.x <- b.x							# para evitar error en R CMD check
 		ve <- tclvalue(veti)
 		# elimino la columna de etiquetas 
-		b.x2 <<- b.x[colnames(b.x)!=ve]			# provisional para etiquetas
-		colnames(b.x2) <<- colnames(b.x[colnames(b.x)!=ve])
-		rownames(b.x2) <<- t(b.x[colnames(b.x)==ve])
+		# b.x2 <<- b.x[colnames(b.x)!=ve]			# provisional para etiquetas
+		# colnames(b.x2) <<- colnames(b.x[colnames(b.x)!=ve])
+		# rownames(b.x2) <<- t(b.x[colnames(b.x)==ve])
+		rownames(x) <- x[,ve]
+		# b.x2 <<- b.x[colnames(b.x)!=ve]
+		x[colnames(x)!=ve]
 		}
 		
-	cubo3 <- function() {
-		b.x <- b.x							# para evitar error en R CMD check
+	cubo3 <- function(x) {
+		# b.x <- b.x							# para evitar error en R CMD check
 		ve <- tclvalue(veti)
 		vs <- tclvalue(vsit)
-		bt.nl <<- length(levels(as.factor(b.x[[vs]])))
-		bt.leve <<- levels(as.factor(b.x[[vs]]))
+		# bt.nl <<- length(levels(as.factor(b.x[[vs]])))
+		bt.nl <<- length(levels(as.factor(x[[vs]])))
+		# bt.leve <<- levels(as.factor(b.x[[vs]]))
+		bt.leve <<- levels(as.factor(x[[vs]]))
 		tclvalue(vref) <- max(bt.leve)
 		bt.t <- max(bt.leve) 		# Referencia provisional hasta seleccionarla
 		# elimino las columnas de etiquetas y situaciones
-		bt.x <- b.x[sapply(b.x,is.numeric)]	# solo datos numericos
+		bt.x <- x[sapply(x,is.numeric)]	# solo datos numericos
 		if(nrow(bt.x)%%bt.nl==0) 	# ckeck bloques completos
-			bt.x3 <- array(0,c(nrow(b.x)/bt.nl,ncol(bt.x),bt.nl))
+			# bt.x3 <- array(0,c(nrow(b.x)/bt.nl,ncol(bt.x),bt.nl))
+			bt.x3 <- array(0,c(nrow(x)/bt.nl,ncol(bt.x),bt.nl))
 			else stop(bt.lit[133,])	# ERROR: bloques incompletos
+			
 		# 	carga la via 3
-		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,b.x[vs]==bt.leve[k]))
+		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,x[vs]==bt.leve[k]))
 		#
 		#	etiqueta el cubo
 		colnames(bt.x3) <- colnames(bt.x)
-		rownames(bt.x3) <- b.x[ve][b.x[vs]==bt.t]	
+		rownames(bt.x3) <- x[ve][x[vs]==bt.t]	
 		dimnames(bt.x3)[[3]] <- bt.leve
 		#	Chequeamos trayectorias nulas:
 		#	filas
-		for (i in 1:nrow(bt.x3[,,1])) {
-			tmp1 <- bt.x3[i,,]
-			tmp2 <- apply(abs(tmp1),1,sum)
-			for (j in 1:length(tmp2)) 
-				if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
-					print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
-					}
+		# for (i in 1:nrow(bt.x3[,,1])) {
+			# tmp1 <- bt.x3[i,,]
+			# tmp2 <- apply(abs(tmp1),1,sum)
+			# for (j in 1:length(tmp2)) 
+				# if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
+					# print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
+					# }
+		apply(bt.x3,c(1,2),sum)==0 -> hay0
+		if(any(hay0)) {bt.x3[,,1][hay0] <- 0.1
+						print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		#	columnas
-		for (i in 1:ncol(bt.x3[,,1])) {
-			tmp1 <- bt.x3[,i,]
-			tmp2 <- apply(abs(tmp1),1,sum)
-			for (j in 1:length(tmp2)) 
-				if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
-					print(bt.lit[33,])}	# AVISO: una columna tiene todos 0. Se pone 0.1 a una celda
-					} 
+		# for (i in 1:ncol(bt.x3[,,1])) {
+			# tmp1 <- bt.x3[,i,]
+			# tmp2 <- apply(abs(tmp1),1,sum)
+			# for (j in 1:length(tmp2)) 
+				# if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
+					# print(bt.lit[33,])}	# AVISO: una columna tiene todos 0. Se pone 0.1 a una celda
+					# } 
+		apply(bt.x3,c(2,3),sum)==0 -> hay0
+		if(any(hay0)) {bt.x3[1,,] <- 0.1
+						print(bt.lit[33,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		#		
-		b.x3 <<- bt.x3
-		b.x2 <<- bt.x3[,,bt.t]			# carga provisional para etiquetas
+		# b.x3 <<- bt.x3
+		bt.x3
+		# b.x2 <<- bt.x3[,,bt.t]			# carga provisional para etiquetas
 		}
 	#
 	#		Formato de individuos, variables y ocasiones

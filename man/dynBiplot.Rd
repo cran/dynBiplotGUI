@@ -1,5 +1,5 @@
 \name{dynBiplot}
-\Rdversion{1.1.1}
+\Rdversion{1.1.2}
 \alias{dynBiplot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
