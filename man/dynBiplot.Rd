@@ -6,7 +6,7 @@
 Dynamic Biplot
 }
 \description{
-Full graphical interface to solve Dynamic Biplot, classic Biplot and HJ-Biplot.
+Full graphical interface to solve Dynamic Biplot, classic Biplot and HJ-Biplot. Try matrices of 2-way and 3-way. The GUI can be run in multiple languages.
 }
 \usage{
 dynBiplot(lang = "es")
@@ -48,9 +48,9 @@ Jaime Egido <jegido@usal.es>
   Una alternativa de representacion simultanea: HJ-Biplot.
   \emph{Questiio}, 10(1):13-23, 1986.
   
-  Egido, J; Galindo, M. P. (2013)
-  Dynamic Biplot.
-  Pending publication.
+  Egido, J; Galindo, M. P. (2015)
+  Biplot Dinamico.
+  http://hdl.handle.net/10366/125245
 }
 
 \examples{

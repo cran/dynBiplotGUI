@@ -1,4 +1,6 @@
 dynBiplot <-
+
+
 function (lang="es")
 {
 	#library(tcltk)
@@ -67,11 +69,13 @@ function (lang="es")
 	nejes <- 2					# numero de ejes a tratar
 	dim1 <- 1;	dim2 <- 2		# para tratar las dimensiones
 	label.ejes <- array()		# etiquetas "Eje" para los factores
-	
+	wout1 <- tclVar("1.8")		# ancho ventana grafica de salida
+	wout2 <- tclVar("1.8")		# alto ventana grafica de salida
+	p4cbx <- tclVar()			# Combobox del panel 4 
 	#
 	#		Declaracion de variables para evitar NOTE en R CMD check
 	#
-	bt.hoja <- bt.hc <- bt.hr <- NULL	
+	bt.hoja <- bt.hc <- bt.hr <- bt.hs <- NULL	
 	b.x2 <- b.x3 <- NULL
 	bt.cubo.b <- bt.nl <- bt.leve <- NULL
 	bt.t <- bt.x <- bt.x2 <- bt.x3 <- bt.fx <- bt.fy <- bt.tf <- bt.fxg <- bt.fyg <- NULL
@@ -90,8 +94,9 @@ function (lang="es")
 	#
 	#	Seleccion de lenguaje
 	#
-	lit0 <- read.csv(file.path(path.package("dynBiplotGUI"),"lang","Language.csv",fsep=.Platform$file.sep),
-					header=T,as.is=1,sep=";")
+	lit0 <- read.csv(file.path(path.package("dynBiplotGUI"),"lang",
+				"Language.csv",fsep=.Platform$file.sep),
+				header=T,as.is=1,sep=";",encoding="latin1")
 	if(lang=="es")		lit <- lit0["es"]		# espanol
 	else if(lang=="fr") lit <- lit0["fr"]		# frances
 	else if(lang=="pt") lit <- lit0["pt"]		# portugues
@@ -111,7 +116,7 @@ function (lang="es")
 		modo <- napply(nn, mode)
 		tipo <- ifelse(is.na(clase), modo, clase)
 		out <- data.frame(nn,tipo,stringsAsFactors =F)
-		n2 <- out["tipo"]=="data.frame" | out["tipo"]=="matrix"
+		n2 <- out["tipo"]=="data.frame" | out["tipo"]=="matrix" | out["tipo"]=="array"
 		out["nn"][n2]
 	}
 	#
@@ -123,13 +128,13 @@ function (lang="es")
 		return()
 	}
 	if(1==2) b.x <- b.x				# para evitar error en R CMD check
-	# if (tclvalue(bt.leer)=="1") leer.excel()
-	if (tclvalue(bt.leer)=="1") b.x <<- leer.csv()
-        else if (tclvalue(bt.leer)=="2") leer.df()
-        # else if (tclvalue(bt.leer)=="2") b.x <<- leer.df()
-			else if (tclvalue(bt.leer)=="3") b.x <<- leer.txt()
-				else if (tclvalue(bt.leer)=="4") b.x <<- leer.spss()
-					else b.x <<- leer.clipboard()
+	if (tclvalue(bt.leer)=="1") leer.df()
+
+        else if (tclvalue(bt.leer)=="2") leer.excel()
+			else if (tclvalue(bt.leer)=="3") b.x <<- leer.csv()
+				else if (tclvalue(bt.leer)=="4") b.x <<- leer.txt()
+					else if (tclvalue(bt.leer)=="5") b.x <<- leer.spss()
+						else b.x <<- leer.clipboard()
 	if (length(b.x)==0) {print(bt.lit[99,])		# -Selecciona tipo de fichero-
 						return() }
 	tkconfigure(la, text=mens.leer, foreground="black", background="yellow2")	# para mostrar a pie de pagina
@@ -139,34 +144,33 @@ function (lang="es")
 	}
 	#		leer excel
 	#
-	# leer.excel <- function()	{	
-		# require(RODBC)
-		# if(1==2) b.x <- NULL				# para evitar error en R CMD check
-		# file1<-tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
-		# if (!length(file1))   return()
-		# channel <- odbcConnectExcel2007(file1,readOnly = TRUE)
-		# aa <- sqlTables(channel,errors=T)$TABLE_TYPE=="SYSTEM TABLE"
-		# hojastabla <- sqlTables(channel,errors=T)$TABLE_NAME[aa]
-		# hojastabla <- sub("$","",hojastabla,fixed=T)	# quita caracter
-		# whoja <- tktoplevel()
-		# tkwm.title(whoja,bt.lit[22,])					# Selecciona
-		# tl <- tk2listbox(whoja, height = min(length(hojastabla),15),
-				# values=hojastabla, selectmode = "browse",background = "white")
-		# tkpack(tk2label(whoja, text = bt.lit[23,]))		# Selecciona tabla
-		# tkpack(tl)
-		# tkselection.set(tl, 0)
-		# OnOK <- function()	{
-			# bt.hoja <- hojastabla[as.numeric(tkcurselection(tl)) + 1]
-			# b.x <<- sqlFetch(channel, bt.hoja)
-			# mens.leer <<- bt.hoja
-			# odbcClose(channel)
-			# tkdestroy(whoja)
-		# }
-		# OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
-		# tkpack(OK.but)
-		# tkfocus(whoja) 
-		# tkwait.window(whoja)
-		# }
+	leer.excel <- function()	{	
+		# require(xlsx)
+		if(1==2) b.x <- NULL				# para evitar error en R CMD check
+		hojaex <- tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
+		if (!length(hojaex))   return()
+		tmp <- xlsx::loadWorkbook(hojaex)
+		hojas <- names(xlsx::getSheets(tmp))		# lista de hojas
+		whoja <- tktoplevel()
+		tkwm.title(whoja,bt.lit[22,])					# Selecciona
+		tl <- tk2listbox(whoja, height = min(length(hojas),15),
+				values=hojas, selectmode = "browse",background = "white")
+		tkpack(tk2label(whoja, text = bt.lit[23,]))		# Selecciona tabla
+		tkpack(tl)
+		tkselection.set(tl, 0)
+		OnOK <- function()	{
+			bt.hoja <- hojas[as.numeric(tkcurselection(tl)) + 1]
+			b.x <<- xlsx::read.xlsx(hojaex,sheetName=bt.hoja,encoding="UTF-8")
+			mens.leer <<- bt.hoja
+			tkdestroy(whoja)
+		}
+
+		OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
+		tkpack(OK.but)
+		tkfocus(whoja) 
+		tkwait.window(whoja)
+		}
+
 	#		leer csv, sep=";", dec="."
 	#
 	leer.csv <- function()	{	
@@ -179,7 +183,16 @@ function (lang="es")
 	# 
 	leer.df <- function()	{
 		if(1==2) b.x <- b.x				# para evitar error en R CMD check
+		if (length(ls(.GlobalEnv))==0) 
+							{print(bt.lit[111,])		# Error en tipo de archivo
+							b.x <<- NULL
+							return() }	# no hay ficheros
 		h0 <- lsos()
+		aa <- h0 %in% ls(.GlobalEnv,pattern=".f")	# para no mostrar formatos
+		h0 <- h0[!aa]
+		if (length(h0)==0) {print(bt.lit[111,])		# Error en tipo de archivo
+							b.x <<- NULL
+							return() }	# no hay ficheros
 		t0 <- tktoplevel()
 		tkwm.title(t0,bt.lit[22,])		# Selecciona
 		tl <- tk2listbox(t0, height = min(length(h0),15),
@@ -191,13 +204,27 @@ function (lang="es")
 			bt.h1 <- h0[as.numeric(tkcurselection(tl)) + 1]
 			b.x <<- get(bt.h1)
 			mens.leer <<- bt.h1
+
 			tkdestroy(t0)
+
 		}
 		OK.but <- tk2button(t0,text=bt.lit[25,],command=OnOK)	# OK
+
+
+
 		tkgrid(OK.but) 
 		tkfocus(t0) 
 		tkwait.window(t0)
 		}
+
+
+
+
+
+
+
+
+
 	#		leer txt
 	#
 	leer.txt <- function()	{
@@ -208,7 +235,7 @@ function (lang="es")
 	#		leer SPSS
 	#
 	leer.spss <- function()	{
-		library(foreign)
+		# library(foreign)
 		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
 		if (mens.leer=="") return()
 		foreign::read.spss(mens.leer, use.value.labels=F,to.data.frame=T)
@@ -225,14 +252,17 @@ function (lang="es")
 	cubo <- function(x) {
 		# variable de etiquetas y referencia:
 		#	panel de datos - para generar el cubo
-		# if (1==2) b.x <- b.x						# para evitar error en R CMD check
 		fr12 <- tk2frame(fr.d2,relief="raised", borderwidth=2,padding="2")
 		fr12.2 <- tk2frame(fr12)
 		fr12.3 <- tk2frame(fr12)
-		# vari <- colnames(b.x)
+
+
 		vari <- colnames(x)
-		# tclvalue(veti) <- colnames(b.x)[[1]]		# valor inicial a mostrar
 		tclvalue(veti) <- colnames(x)[[1]]		# valor inicial a mostrar
+
+
+
+
 		tclvalue(vsit) <- colnames(x)[[2]]		# valor inicial a mostrar
 		bt.cubo.b <<- tk2button(fr12,text=bt.lit[27,], command=function() cubo.gen(x))	# Generar matrices
 		tkpack(tk2label(fr12.2, text=bt.lit[28,],background="lightyellow",width=12),	# Etiquetas
@@ -259,34 +289,24 @@ function (lang="es")
 		}
 		
 	cubo2 <- function(x) {
-		# b.x <- b.x							# para evitar error en R CMD check
 		ve <- tclvalue(veti)
-		# elimino la columna de etiquetas 
-		# b.x2 <<- b.x[colnames(b.x)!=ve]			# provisional para etiquetas
-		# colnames(b.x2) <<- colnames(b.x[colnames(b.x)!=ve])
-		# rownames(b.x2) <<- t(b.x[colnames(b.x)==ve])
 		rownames(x) <- x[,ve]
-		# b.x2 <<- b.x[colnames(b.x)!=ve]
-		x[colnames(x)!=ve]
+		x[colnames(x)!=ve]					# elimino la columna de etiquetas
 		}
 		
 	cubo3 <- function(x) {
-		# b.x <- b.x							# para evitar error en R CMD check
 		ve <- tclvalue(veti)
 		vs <- tclvalue(vsit)
-		# bt.nl <<- length(levels(as.factor(b.x[[vs]])))
 		bt.nl <<- length(levels(as.factor(x[[vs]])))
-		# bt.leve <<- levels(as.factor(b.x[[vs]]))
 		bt.leve <<- levels(as.factor(x[[vs]]))
-		tclvalue(vref) <- max(bt.leve)
 		bt.t <- max(bt.leve) 		# Referencia provisional hasta seleccionarla
 		# elimino las columnas de etiquetas y situaciones
 		bt.x <- x[sapply(x,is.numeric)]	# solo datos numericos
 		if(nrow(bt.x)%%bt.nl==0) 	# ckeck bloques completos
-			# bt.x3 <- array(0,c(nrow(b.x)/bt.nl,ncol(bt.x),bt.nl))
 			bt.x3 <- array(0,c(nrow(x)/bt.nl,ncol(bt.x),bt.nl))
 			else stop(bt.lit[133,])	# ERROR: bloques incompletos
 			
+
 		# 	carga la via 3
 		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,x[vs]==bt.leve[k]))
 		#
@@ -296,31 +316,14 @@ function (lang="es")
 		dimnames(bt.x3)[[3]] <- bt.leve
 		#	Chequeamos trayectorias nulas:
 		#	filas
-		# for (i in 1:nrow(bt.x3[,,1])) {
-			# tmp1 <- bt.x3[i,,]
-			# tmp2 <- apply(abs(tmp1),1,sum)
-			# for (j in 1:length(tmp2)) 
-				# if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
-					# print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
-					# }
 		apply(bt.x3,c(1,2),sum)==0 -> hay0
 		if(any(hay0)) {bt.x3[,,1][hay0] <- 0.1
-						print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
+				print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		#	columnas
-		# for (i in 1:ncol(bt.x3[,,1])) {
-			# tmp1 <- bt.x3[,i,]
-			# tmp2 <- apply(abs(tmp1),1,sum)
-			# for (j in 1:length(tmp2)) 
-				# if (tmp2[j]==0) {bt.x3[i,j,1]<-0.1
-					# print(bt.lit[33,])}	# AVISO: una columna tiene todos 0. Se pone 0.1 a una celda
-					# } 
 		apply(bt.x3,c(2,3),sum)==0 -> hay0
 		if(any(hay0)) {bt.x3[1,,] <- 0.1
-						print(bt.lit[33,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
-		#		
-		# b.x3 <<- bt.x3
+				print(bt.lit[33,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		bt.x3
-		# b.x2 <<- bt.x3[,,bt.t]			# carga provisional para etiquetas
 		}
 	#
 	#		Formato de individuos, variables y ocasiones
@@ -396,14 +399,17 @@ function (lang="es")
 	}
 	
 	#	llenado de listbox
-	#		salida: bt.hr, bt.hc = lista de variables seleccionadas
+	#		salida: bt.hr, bt.hc, bt.hs = lista de variables seleccionadas
 	#
 	llena.lbr <- function() {
 
 		# 	Carga de iconos
-		all.img <- tkimage.create("photo", data=icon.all)
-		none.img <- tkimage.create("photo", data=icon.none)
-		ok.img <- tkimage.create("photo", data=icon.ok)
+		picon <- paste(path.package("dynBiplotGUI"),"images",sep="/")
+		all.img <- tkimage.create("photo", file=paste(picon,"accept_list.gif",sep="/"))
+		none.img <- tkimage.create("photo", file=paste(picon,"delete_list.gif",sep="/"))
+		b.nada <- function(x,y)	{tkselection.clear(x,0,length(y)-1)}
+		b.todo <- function(x,y)	{tkselection.set(x,0,length(y)-1)}
+		
 		#		Seleccion de filas
 		row.frm <- tk2frame(fr.a1, relief="sunken",padding="2")
 		row1.frm <- tk2frame(row.frm, relief="sunken",padding="2")
@@ -413,16 +419,14 @@ function (lang="es")
 		tkpack(tk2label(row.frm,text=bt.lit[37,],background="lightcyan"	# Selecciona filas
 						,tip=bt.lit[38,]),fill="x")	# Marca las filas que quieras
 		
-		row.nada <- function()	{tkselection.clear(lbr,0,length(row0)-1)}
-		row.todo <- function()	{tkselection.set(lbr,0,length(row0)-1)}
 		row.b <- tk2frame(row.frm, relief="sunken")		
 		row.b1 <- tk2button(row.b, tip=bt.lit[39,], text = "None", 	# Quita todas
-					image=none.img, command = row.nada)
+					image=none.img, command = function() b.nada(lbr,row0))
 		row.b2 <- tk2button(row.b, text = "All", tip=bt.lit[40,],	# Marca todas
-					image=all.img, command = row.todo)
+					image=all.img, command = function() b.todo(lbr,row0))
 		
 		tkpack(lbr,fill="y", side="left")
-		tkpack(row.b1,row.b2, side="left")
+		tkpack(row.b1,row.b2, side="right")
 		tkpack(row1.frm,row.b,row.frm)
 		
 		#		Seleccion de columnas
@@ -434,8 +438,37 @@ function (lang="es")
 		tkpack(tk2label(col.frm,text=bt.lit[41,],background="lightcyan"	# Selecciona columnas
 					,tip=bt.lit[42,]),fill="x")	# Marca las variables
 		
-		col.nada <- function()	{tkselection.clear(lbc,0,length(col0)-1)}
-		col.todo <- function()	{tkselection.set(lbc,0,length(col0)-1)}
+		col.b <- tk2frame(col.frm, relief="sunken")		
+		col.b1 <- tk2button(col.b,tip=bt.lit[39,],text = "None",	# Quita todas
+							image=none.img, command = function() b.nada(lbc,col0))
+		col.b2 <- tk2button(col.b,tip=bt.lit[40,],text = "All",		# Marca todas
+							image=all.img, command = function() b.todo(lbc,col0))
+		
+		tkpack(lbc,fill="y", side="left")
+		tkpack(col.b1,col.b2, side="right")
+		tkpack(col1.frm,col.b,col.frm)
+							
+		#		Seleccion de situaciones
+		if (tclvalue(i3v)=="1") {
+			sit.frm <- tk2frame(fr.a3, relief="sunken",padding="2")		
+			sit1.frm <- tk2frame(sit.frm, relief="sunken",padding="2")
+			sit0 <- paste(1:dim(b.x3)[3], " - ", dimnames(b.x3)[[3]])
+			lbs <- tk2listbox(sit1.frm, values=sit0, height = 16, 
+					selectmode = "extended", scroll = "y",autoscroll = "y")
+			tkpack(tk2label(sit.frm,text=bt.lit[137,],background="lightcyan"	# Selecciona situaciones
+						,tip=bt.lit[138,]),fill="x")	# Marca las situaciones
+			
+			sit.b <- tk2frame(sit.frm, relief="sunken")		
+			sit.b1 <- tk2button(sit.b,tip=bt.lit[39,],text = "None",	# Quita todas
+								image=none.img, command = function() b.nada(lbs,sit0))
+			sit.b2 <- tk2button(sit.b,tip=bt.lit[40,],text = "All",		# Marca todas
+								image=all.img, command = function() b.todo(lbs,sit0))
+			
+			tkpack(lbs,fill="y", side="left")
+			tkpack(sit.b1,sit.b2, side="right")
+			tkpack(sit1.frm,sit.b,sit.frm)
+		}
+		
 		col.sel <- function()	{bt.hc <<- as.numeric(tkcurselection(lbc)) + 1
 								bt.hr <<- as.numeric(tkcurselection(lbr)) + 1
 			# Validacion de elementos marcados:
@@ -443,6 +476,10 @@ function (lang="es")
 									return()}
 			if (length(bt.hc)==0) {print(bt.lit[44,])	# ERROR: columnas no seleccionadas
 									return()}
+			if (tclvalue(i3v)=="1") {bt.hs <<- as.numeric(tkcurselection(lbs)) + 1
+				if (length(bt.hs)<=1) {print(bt.lit[136,])	# ERROR: situaciones no seleccionadas
+									return()}
+									}
 			if (length(bt.hr)<length(bt.hc)) {print(bt.lit[121,])	# ERROR: filas < columnas
 									return()}
 			tkconfigure(tb4.cb0,values= c(2:length(bt.hc)))
@@ -452,19 +489,18 @@ function (lang="es")
 			tkconfigure(run.but,state="normal")
 			tk2notetab.select(nb,bt.lit[6,])		# Analisis
 			if (tclvalue(isd)!="1") {panel4.1()		# opciones del analisis
+				if (tclvalue(i3v)=="1") panel4.3v()	# opciones para 3 vias
 						tclvalue(isd) <- "1"}		# ya mostrado panel
+			else if (tclvalue(i3v)=="1") {			# reconfigura lista de referencia
+				tmp1 <- dimnames(b.x3)[[3]][bt.hs]
+				tclvalue(vref) <- max(tmp1)
+				tkconfigure(p4cbx,values=tmp1)
+				}
 			###	la captura de los valores se hace en el boton 'Run Biplot' ###
 		}
-		col.b <- tk2frame(col.frm, relief="sunken")		
-		col.b1 <- tk2button(col.b,tip=bt.lit[39,],text = "None",	# Quita todas
-							image=none.img, command = col.nada)
-		col.b2 <- tk2button(col.b,tip=bt.lit[40,],text = "All",		# Marca todas
-							image=all.img, command = col.todo)
+													
 		bok <- tk2button(tb3, tip=bt.lit[25,],text = "OK",			# OK
 							 command = col.sel)
-		tkpack(lbc,fill="y", side="left")
-		tkpack(col.b1,col.b2, side="left")
-		tkpack(col1.frm,col.b,col.frm)
 		tkpack(row.frm,col.frm, side="left", fill="y",expand=TRUE)
 		tkpack(bok)
 	}
@@ -480,13 +516,14 @@ function (lang="es")
 		nejes <<- as.numeric(tclvalue(neje))
 		dim1 <<- as.numeric(tclvalue(di1))
 		dim2 <<- as.numeric(tclvalue(di2))
-		if (tclvalue(i3v)=="1") {bt.t <<- tclvalue(vref)
-								b.x2 <<- b.x3[,,bt.t]	}
+		if (tclvalue(i3v)=="1") {bt.t <<- tclvalue(vref)	# 3 vias
+						b.x2 <<- b.x3[,,bt.t]
+						bt.x3 <<- b.x3[bt.hr,bt.hc,bt.hs]	
+						nl <- dim(bt.x3)[[3]]	# numero niveles seleccionado
+			}
 		bt.x2  <<- b.x2[bt.hr,bt.hc]	# Datos seleccionados para analizar
 		bt.fxg <<- b.fx[bt.hr,]			# formatos de datos seleccionados
 		bt.fyg <<- b.fy[bt.hc,]
-		#	3 vias
-		if (tclvalue(i3v)=="1")  bt.x3 <<- b.x3[bt.hr,bt.hc,]
 		
 		#	Calculo de medias y sd para estandarizacion
 		bt.x2m <<- apply(bt.x2,2,mean)	# media de matriz de referencia
@@ -507,12 +544,12 @@ function (lang="es")
 			# si biplot con todos los datos:
 		if (tclvalue(ibg)=="1")	{
 			bt.x2 <<- bt.x3[,,1]
-			for(i in 2:bt.nl) bt.x2 <<- rbind(bt.x2,bt.x3[,,i])
+			for(i in 2:nl) bt.x2 <<- rbind(bt.x2,bt.x3[,,i])
 			temp <- NULL
-			for(i in 1:bt.nl) {temp1 <- rep(dimnames(b.x3)[[3]][i],length(bt.hr))
+			for(i in 1:nl) {temp1 <- rep(dimnames(bt.x3)[[3]][i],length(bt.hr))
 								temp <- c(temp,temp1)}
 			rownames(bt.x2) <<- paste(bt.fxg$eti,temp,sep="")
-			for(i in 2:bt.nl) bt.fxg <<- rbind(bt.fxg,b.fx[bt.hr,])
+			for(i in 2:nl) bt.fxg <<- rbind(bt.fxg,b.fx[bt.hr,])
 			bt.fxg$eti <<- rownames(bt.x2)
 		}	
 		label.ejes <<- paste(bt.lit[45,],1:ncol(bt.x2),sep = "")	# Eje
@@ -536,20 +573,21 @@ function (lang="es")
 
 		# Trayectorias:
 		if (tclvalue(i3v)=="1") {
-			bt.zc <<-array(,c(bt.nl,length(bt.hc),ncol(bt.x2)))	#inicializamos matriz de trayectorias
-			bt.zr <<-array(,c(bt.nl,length(bt.hc),nrow(bt.x2)))	#inicializamos matriz de trayectorias
-			bt.r2c <<-array(,c(ncol(bt.x2),bt.nl))		#inicializamos matriz de R2
+			bt.zc <<-array(,c(nl,length(bt.hc),ncol(bt.x2)))	#inicializamos matriz de trayectorias
+			bt.zr <<-array(,c(nl,length(bt.hc),nrow(bt.x2)))	#inicializamos matriz de trayectorias
+			bt.r2c <<-array(,c(ncol(bt.x2),nl))			#inicializamos matriz de R2
 			bt.Fc <<- bt.Prc <<- bt.r2c 				# matriz anova F, p-value
-			bt.r2r <<-array(,c(nrow(bt.x2),bt.nl))		#inicializamos matriz de R2
+			bt.r2r <<-array(,c(nrow(bt.x2),nl))			#inicializamos matriz de R2
 			# solo si no global
 			if (tclvalue(ibg)!="1") {
 				for (i in 1:length(bt.hc)) tray(i)		# Trayectorias de variables				
-				for (i in 1:length(bt.hr)) trax(i)		# Trayectoria de individuos			
-				dimnames(bt.zc) <<- list(bt.leve,label.ejes[1:ncol(bt.x2)],colnames(bt.x2))
-				dimnames(bt.zr) <<- list(bt.leve,label.ejes[1:ncol(bt.x2)],rownames(bt.x2))
-				dimnames(bt.r2c) <<- list(colnames(bt.x2),bt.leve)
+				for (i in 1:length(bt.hr)) trax(i)		# Trayectoria de individuos		
+				leve <- dimnames(bt.x3)[[3]]			# niveles seleccionados
+				dimnames(bt.zc) <<- list(leve,label.ejes[1:ncol(bt.x2)],colnames(bt.x2))
+				dimnames(bt.zr) <<- list(leve,label.ejes[1:ncol(bt.x2)],rownames(bt.x2))
+				dimnames(bt.r2c) <<- list(colnames(bt.x2),leve)
 				dimnames(bt.Fc) <<- dimnames(bt.Prc) <<- dimnames(bt.r2c)
-				dimnames(bt.r2r) <<- list(rownames(bt.x2),bt.leve)
+				dimnames(bt.r2r) <<- list(rownames(bt.x2),leve)
 			}
 		}		
 		# Funcion de resultados numericos
@@ -615,7 +653,7 @@ function (lang="es")
 		hj <- tclvalue(tb)
 		va <- rownames(bt.x2)[v]
 		x <- t(bt.x3[va,,])
-		x2 <- matrix(,bt.nl,ncol(bt.x3))
+		x2 <- matrix(,dim(bt.x3)[[3]],ncol(bt.x3))
 		B <- bt.b	
 		x2 <- scale((x),bt.x2m,bt.x2sd)				# siempre con la referencia
 			
@@ -726,15 +764,22 @@ function (lang="es")
 	#	Titulos
 	frf1 <- tk2frame(fr.f2,borderwidth=1)
 	frf2 <- tk2frame(fr.f2,borderwidth=1)
+	frf3 <- tk2frame(fr.f2,borderwidth=1)
 	tkpack(tk2checkbutton(frf1,variable=it1,tip=bt.lit[110,]),		# Mostrar
 		tk2label(frf1,text=bt.lit[64,], width="11"), 	# Titulo
 		tk2entry(frf1, width="40", textvariable=vtit), side="left")
 	tkpack(tk2checkbutton(frf2,variable=it2,tip=bt.lit[110,]),		# Mostrar
 		tk2label(frf2,text=bt.lit[65,], width="11"), 	# Subtitulo
 		tk2entry(frf2, width="40", textvariable=vsub), side="left")
+	tkpack(tk2label(frf3,text=paste(bt.lit[135,],", H: "),	# Escala de la ventana
+		tip="Horizontal (1.4 < h < 2.5)"),
+		tk2entry(frf3,textvariable=wout1,width="3"), 
+		tk2label(frf3,text=" V: ",tip="Vertical (1.4 < v < 2.5)"),
+		tk2entry(frf3,textvariable=wout2,width="3"), 
+		side="left")
 	tkpack(frf1, side="top")
 	# if (tclvalue(i3v)==0) tkpack(frf2)
-	tkpack(frf2)
+	tkpack(frf2,frf3)
 
 	#	Para formato de datos
 		# Solapa individuos tb1
@@ -797,23 +842,27 @@ function (lang="es")
 	fr.o2 <- tk2frame(fr.s5,padding="2",relief="flat")
 	fr.o3 <- tk2frame(fr.s5,padding="2",relief="flat")	
 	# 	inercia 
-	la1 <- tk2label(fr.o2,text=bt.lit[72,],width=15,background="honeydew")	# Inercia filas
+	la1 <- tk2label(fr.o2,text=bt.lit[72,],width=20,background="honeydew")	# Inercia filas
 	sc1 <- tk2scale(fr.o2,tip=bt.lit[73,],from = 0, to = 1000,	# filas
 			variable=vinx, length=200)
 	e41 <- tk2entry(fr.o2, textvariable=vinx, width=4)
 	tkpack(la1,sc1,e41, side="left", fill="x")
-	la2 <- tk2label(fr.o3,text=bt.lit[74,], width=15,background="honeydew")	# Inercia columnas
+	la2 <- tk2label(fr.o3,text=bt.lit[74,], width=20,background="honeydew")	# Inercia columnas
 	sc2 <- tk2scale(fr.o3,tip=bt.lit[75,],from = 0, to = 1000,	# columnas
 			variable=viny, length=200)
 	e42 <- tk2entry(fr.o3, textvariable=viny, width=4)
 	tkpack(la2,sc2,e42, side="left", fill="x")
 	tkpack(fr.o1, fr.o2, fr.o3, side="top", fill="x")
+	}
 
 	# opciones de 3 vias
-	if (tclvalue(i3v)=="1") {
+	panel4.3v <- function() {
 		fr27 <- tk2frame(fr.s4, relief="raised",padding="2")
+		tmp1 <- dimnames(b.x3)[[3]][bt.hs]			# etiquetas de situaciones
+		tclvalue(vref) <- max(tmp1)
+		p4cbx <<- tk2combobox(fr27,values=tmp1,textvariable=vref,width=8) # situaciones seleccionadas
 		tkpack(tk2label(fr27, text=bt.lit[76,],background="palegreen"),	# Referencia
-			tk2combobox(fr27,values=bt.leve,textvariable=vref,width=8),
+			p4cbx,
 			tk2label(fr27, text=bt.lit[77,],background="palegreen"),	# Biplot global
 			tk2checkbutton(fr27, variable=ibg),
 			side="left")
@@ -834,12 +883,11 @@ function (lang="es")
 			tk2label(fr27.3,text=bt.lit[79,],background="palegreen"),	# columnas
 			tk2checkbutton(fr27.3, variable=ietzc), 
 			tk2label(fr27.3,text=bt.lit[131,],background="palegreen",	# Concatenar
-					tip=bt.lit[132,]),	# Etiquetas = nombre de variable + situación
+					tip=bt.lit[132,]),	# Etiquetas = nombre de variable + situacion
 			tk2checkbutton(fr27.3, variable=ivs), 
 			side="left", fill="x")
 		tkpack(fr27, fr27.2, fr27.3, side="top")
 		}
-	}
 	#
 	#	Funcion formato de datos
 	#
@@ -1005,7 +1053,7 @@ function (lang="es")
 					borderwidth=2,padding="2")			# para 3 vias
 		fr.d1 <-tk2labelframe(tb1,text=bt.lit[93,])		# leer datos
 		tb1.t0 <- tk2frame(tb1)
-		tb1.t1 <- tk2label(tb1.t0,text=bt.lit[94,],background="yellow",width=50)	# Carga de datos
+		tb1.t1 <- tk2label(tb1.t0,text=bt.lit[94,],background="yellow",width=65)	# Carga de datos
 		topic <- "panelData"
 		tb1.t2 <- tk2button(tb1.t0,text="?",width=4,
 					command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
@@ -1024,18 +1072,26 @@ function (lang="es")
 		#
 		fr1 <- tk2frame(fr.d1,relief="sunken",borderwidth=2,padding="2")
 		tkpack(tk2label(fr1,text=bt.lit[99,],background="lightyellow"))	# Selecciona tipo de fichero
-		if (.Platform$OS.type=="windows") tmp="enable"	
-			else tmp="disable"
-		tkpack(tk2radiobutton(fr1, command=leer.archivos, text="CSV",	# solo windows
-							 value=1, variable=bt.leer,state=tmp), 
-				tk2radiobutton(fr1, command=leer.archivos, text="R",
+		# if (.Platform$OS.type=="windows") tmp="enable"	
+			# else tmp="disable"
+		fr1a <- tk2frame(fr1)
+		fr1b <- tk2frame(fr1)
+		tkpack(fr1a,fr1b,side="top")
+		tkpack(
+				tk2radiobutton(fr1a, command=leer.archivos, text="R",
+							 value=1, variable=bt.leer), 
+				tk2radiobutton(fr1a, command=leer.archivos, text="Excel",
+							 # value=1, variable=bt.leer,state=tmp), 
 							 value=2, variable=bt.leer), 
-				tk2radiobutton(fr1, command=leer.archivos, text="txt",
-							 value=3, variable=bt.leer),	
-				tk2radiobutton(fr1, command=leer.archivos, text="SPSS",
+				tk2radiobutton(fr1b, command=leer.archivos, text="txt",
 							 value=4, variable=bt.leer),			 
-				tk2radiobutton(fr1, command=leer.archivos, text=bt.lit[100,],	# portapapeles
-							 value=5, variable=bt.leer), side="left")	
+				tk2radiobutton(fr1b, command=leer.archivos, text="CSV",
+							 value=3, variable=bt.leer),	
+				tk2radiobutton(fr1a, command=leer.archivos, text="SPSS",
+							 value=5, variable=bt.leer),			 
+				tk2radiobutton(fr1b, command=leer.archivos, text=bt.lit[100,],	# portapapeles
+							 value=6, variable=bt.leer), 
+				side="left")	
 		#
 		tkpack(fr11, fr10, fr1, side="top")
 	}
@@ -1044,7 +1100,7 @@ function (lang="es")
 	{
 		sep1 <- tk2separator(tb2)
 		tb2.t0 <- tk2frame(tb2)
-		tb2.t1 <- tk2label(tb2.t0,text=bt.lit[101,],background="salmon",width=50)	# Formato de datos
+		tb2.t1 <- tk2label(tb2.t0,text=bt.lit[101,],background="salmon",width=65)	# Formato de datos
 		topic <- "panelFormat"
 		tb2.t2 <- tk2button(tb2.t0,text="?",width=4,
 						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
@@ -1059,7 +1115,7 @@ function (lang="es")
 	{
 		tb3.t0 <- tk2frame(tb3)
 		tb3.t1 <- tk2label(tb3.t0,text=bt.lit[102,],	# Seleccion de filas y columnas
-						background="lightblue",width=50)
+						background="lightblue",width=65)
 		topic <- "panelVariables"
 		tb3.t2 <<- tk2button(tb3.t0,text="?",width=4, 
 						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
@@ -1067,14 +1123,14 @@ function (lang="es")
 		tkpack(tb3.t2, side="right")
 		tkpack(tb3.t0, fill="x")
 		tkpack(fr.a0,side="top")
-		tkpack(fr.a1, fr.a2, side="left")
+		tkpack(fr.a1, fr.a2, fr.a3, side="left")
 	}
 	
 	panel4 <- function()
 	{
 		tb4.t0 <- tk2frame(tb4)
 		tb4.t1 <- tk2label(tb4.t0,text=bt.lit[104,],	# Opciones de analisis
-					background="lightgreen",width=50)
+					background="lightgreen",width=65)
 		topic <- "panelAnalysis"			
 		tb4.t2 <- tk2button(tb4.t0,text="?",width=4,
 						command=function() ayuda(topic),tip=bt.lit[103,])	# Ayuda
@@ -1125,60 +1181,25 @@ function (lang="es")
 	#		x = datos;	fx = formato de datos
 	#
 	Flechas	<- function (x,fx){
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
 		arrows(0,0, x[,1], x[,2],
 			col=fx$ecol,length=0.1,angle=30,lty=as.numeric(fx$lty),lwd=fx$lwd)
 	}
-	Textoc <- function (x,fx) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		text(x[,1], x[,2], labels=fx$eti, col=fx$ecol,
-			cex=0.7, pos=fx$pos)
-	}
-	Textor <- function (x,fx) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		x <- as.numeric(tclvalue(vesc))* x			# reescala x
+	Texto <- function (x,fx) {
 		text(x[,1], x[,2], labels=fx$eti, col=fx$ecol,
 			cex=0.7, pos=fx$pos)
 	}
 	Puntos <- function (x,fx) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		x <- as.numeric(tclvalue(vesc))* x			# reescala x
 		points(x[,1], x[,2], col=fx$ecol,
 			cex=.7, pch=as.numeric(fx$pch))
 	}
-	Trayectc <- function (x,fx) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
+	Trayect <- function (x,fx) {
 		lines(x[,1], x[,2], col=fx$tcol,lty="dotted",
 			cex=.5, type="o")
 	}
-	Trayectr <- function (x,fx) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		x <- as.numeric(tclvalue(vesc))* x			# reescala x
-		lines(x[,1], x[,2], col=fx$tcol,lty="dotted",
-			cex=.5, type="o")
+	Textot <- function (x,fx,e) {
+		text(x[,1], x[,2], labels=e, col=fx$tcol,cex=0.5, pos=3)
 	}
-	Textotc <- function (x,fx,e) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		if (tclvalue(ivs)==1) tmplabel <- paste(e,rownames(x),sep="")	# concatenar etiquetas
-			else tmplabel <- rownames(x)
-		text(x[,1], x[,2], labels=tmplabel, 
-			col=fx$tcol,cex=0.5, pos=3)
-	}
-	Textotr <- function (x,fx,e) {
-		if (tclvalue(igx)==1) x[,1] <- -1*x[,1]		# rota eje x
-		if (tclvalue(igy)==1) x[,2] <- -1*x[,2]		# rota eje y
-		x <- as.numeric(tclvalue(vesc))* x			# reescala x
-		if (tclvalue(ivs)==1) tmplabel <- paste(e,rownames(x),sep="")
-			else tmplabel <- rownames(x)
-		text(x[,1], x[,2], labels=tmplabel, col=fx$tcol,cex=0.5, pos=3)
-	}
+
 	#	dibujo biplot
 	#
     
@@ -1235,17 +1256,22 @@ function (lang="es")
 		tmp <- bt.a[,c(dim1,dim2)]			# Datos
 		tmp <- t(t(tmp)[,bt.fxg$inl])
 		tmpf <- as.data.frame(t(t(bt.fxg)[,bt.fxg$inl]),stringsAsFactors=F)	# Formato
+		if (tclvalue(igx)==1) tmp[,1] <- -1*tmp[,1]		# rota eje x
+		if (tclvalue(igy)==1) tmp[,2] <- -1*tmp[,2]		# rota eje y
+		tmp <- as.numeric(tclvalue(vesc))* tmp			# reescala x
 		Puntos(tmp,tmpf)
 		if (tclvalue(ietx)=="1" & tclvalue(ibg)!="1") 
-			Textor(tmp,tmpf)	
+			Texto(tmp,tmpf)	
 	  
 		# variables
 		tmp <- bt.b[,c(dim1,dim2)]			# Datos
 		tmp <- t(t(tmp)[,bt.fyg$inl])
 		tmpf <- as.data.frame(t(t(bt.fyg)[,bt.fyg$inl]),stringsAsFactors=F)	# Formato
+		if (tclvalue(igx)==1) tmp[,1] <- -1*tmp[,1]		# rota eje x
+		if (tclvalue(igy)==1) tmp[,2] <- -1*tmp[,2]		# rota eje y
 		Flechas(tmp,tmpf)
 		if (tclvalue(iety)=="1") 
-			Textoc(tmp,tmpf)
+			Texto(tmp,tmpf)
 
 		#
 		#	Trayectorias
@@ -1258,40 +1284,50 @@ function (lang="es")
 					tmp <- bt.res.ty[,c(dim1,dim2),i][bt.Prc[i,]<tpval,]	# p-valor significativo
 					if(length(tmp)==0) next
 					}
-				else
-					tmp <- bt.res.ty[,c(dim1,dim2),i]
+				else	tmp <- bt.res.ty[,c(dim1,dim2),i]
 				tmpf <- bt.fyg[i,]
-				Trayectc(tmp,tmpf)
+				if (tclvalue(igx)==1) tmp[,1] <- -1*tmp[,1]		# rota eje x
+				if (tclvalue(igy)==1) tmp[,2] <- -1*tmp[,2]		# rota eje y
+				Trayect(tmp,tmpf)
 				if (tclvalue(ietzc)=="1") {
 					if(length(tmp) == 0) return()
 					else {
 						tmpe <- bt.fyg$eti[i]
-						Textotc(tmp,tmpf,tmpe) }
+						if (tclvalue(ivs)==1) tmpe <- paste(tmpe,rownames(tmp),sep="")	# concatenar etiquetas
+							else tmpe <- rownames(tmp)
+						Textot(tmp,tmpf,tmpe) }
 			}}
 		#	de individuos
-		if (tclvalue(itrr)=="1")
-		for (i in (1:dim(bt.res.tx)[3])[bt.fxg$inl]) {
-			tmp <- bt.res.tx[,c(dim1,dim2),i]
-			tmpf <- bt.fxg[i,]
-			Trayectr(tmp,tmpf)
-			if (tclvalue(ietzr)=="1") {
-				tmpe <- bt.fxg$eti[i]
-				Textotr(tmp,tmpf,tmpe)			
-		}}
-	}
+			if (tclvalue(itrr)=="1")
+			for (i in (1:dim(bt.res.tx)[3])[bt.fxg$inl]) {
+				tmp <- bt.res.tx[,c(dim1,dim2),i]
+				tmpf <- bt.fxg[i,]
+				if (tclvalue(igx)==1) tmp[,1] <- -1*tmp[,1]		# rota eje x
+				if (tclvalue(igy)==1) tmp[,2] <- -1*tmp[,2]		# rota eje y
+				tmp <- as.numeric(tclvalue(vesc))* tmp			# reescala x
+				Trayect(tmp,tmpf)
+				if (tclvalue(ietzr)=="1") {
+					tmpe <- bt.fxg$eti[i]
+					if (tclvalue(ivs)==1) tmpe <- paste(tmpe,rownames(tmp),sep="")	# concatenar etiquetas
+						else tmpe <- rownames(tmp)
+					Textot(tmp,tmpf,tmpe)			
+			}}
+		}
 
 	#	de individuos si biplot global
 	if (tclvalue(ibg)=="1")
 		if (tclvalue(itrr)=="1") {
 			tmp <- length(bt.hr)
+			tmp3 <- length(bt.hs)
 			for (i in (1:tmp)[bt.fxg$inl[1:tmp]]) {	
-				tma <- matrix(,bt.nl,2)
-				for (j in 1:bt.nl) {
+				tma <- matrix(,tmp3,2)
+				for (j in 1:tmp3) {
 					tma[j,] <- bt.res.a[i+(j-1)*tmp,c(dim1,dim2)]}
 				if (tclvalue(igx)==1) tma[,1] <- -1*tma[,1]		# rota eje x
 				if (tclvalue(igy)==1) tma[,2] <- -1*tma[,2]		# rota eje y
-				tma <- as.numeric(tclvalue(vesc))* tma			# reescala trayectoria	
-				lines(tma, lty="dotted", type="l", col=bt.fxg$tcol[i])
+				tma <- as.numeric(tclvalue(vesc))* tma			# reescala trayectoria
+				Trayect(tma,bt.fxg)
+				# lines(tma, lty="dotted", type="l", col=bt.fxg$tcol[i])
 				if (tclvalue(ietzr)=="1")
 					text(tma[,1],tma[,2], labels=bt.fxg$eti[i],col=bt.fxg$tcol[i],cex=.6, pos=3)
 				if (tclvalue(ietx)=="1")			# solo sacamos 1 etiqueta
@@ -1371,16 +1407,26 @@ function (lang="es")
 			bt.limx1 <<- as.numeric(c(tclvalue(ex1),tclvalue(ex2)))
 			bt.limy1 <<- as.numeric(c(tclvalue(ey1),tclvalue(ey2)))
 			if (tclvalue(igx)==1) {
-				if(iyax==0){bt.limx1 <<- sort(-1*bt.limx)	# reajusta eje x
+				if(iyax==0){bt.limx1 <<- sort(-1*bt.limx1)	# reajusta eje x
 					iyax <<- 1
 					tclvalue(ex1) <-min(bt.limx1)
-					tclvalue(ex2) <-max(bt.limx1)}}
+					tclvalue(ex2) <-max(bt.limx1)}
+				}
+			else if(iyax==1){bt.limx1 <<- sort(-1*bt.limx1)	# reajusta eje x
+					iyax <<- 0
+					tclvalue(ex1) <-min(bt.limx1)
+					tclvalue(ex2) <-max(bt.limx1)
+					}
 			if (tclvalue(igy)==1) {
-				if(iyay==0) {bt.limy1 <<- sort(-1*bt.limy)	# reajusta eje y
+				if(iyay==0) {bt.limy1 <<- sort(-1*bt.limy1)	# reajusta eje y
 					iyay <<- 1
 					tclvalue(ey1) <-min(bt.limy1)
 					tclvalue(ey2) <-max(bt.limy1)}}
-			tkrreplot(bt.img)
+			else if(iyay==1) {bt.limy1 <<- sort(-1*bt.limy1)	# reajusta eje y
+					iyay <<- 0
+					tclvalue(ey1) <-min(bt.limy1)
+					tclvalue(ey2) <-max(bt.limy1)}
+		tkrreplot(bt.img)
 		}
 		bxy <- tk2button(bt.ttp2,text=bt.lit[116,],command=fxy)		# Refrescar
 		bt.ttp3 <- tk2frame(bt.ttp2,relief="raised", borderwidth=2,padding="2")
@@ -1419,9 +1465,8 @@ function (lang="es")
 		tclvalue(ey2) <-max(bt.limy)
 		tclvalue(igx) <- 0				# Comenzamos siempre sin rotar
 		tclvalue(igy) <- 0
-		tclvalue(vesc) <- 1
-		iyax <- 0
-		iyay <- 0
+		tclvalue(vesc) <- 1				# reescalado
+		iyax <<- iyay <<- 0				# ya rotado
         if (tclvalue(ittp)==0) 			# dibuja grafico
 		{
 			bt.ttp <<- tktoplevel()                
@@ -1429,10 +1474,12 @@ function (lang="es")
 			bt.ttp1 <<- tk2frame(bt.ttp)	# para figura
 			bt.ttp2 <<- tk2frame(bt.ttp,relief="raised",borderwidth=2,padding="2")	# pie para coordenadas
 			tkpack(bt.ttp1,bt.ttp2, side="top",fill="x")
-        
+
 			fMenu()
 			fZoom()						# dibuja campos para zoom
-        	bt.img <<- tkrplot(bt.ttp1, fun = plotBiplot1,hscale = 1.8,vscale = 1.8)
+			bt.img <<- tkrplot(bt.ttp1, fun = plotBiplot1,
+				hscale = as.numeric(tclvalue(wout1)),
+				vscale = as.numeric(tclvalue(wout2)))
         	tclvalue(ittp)<-1
         	tkpack(bt.img, expand = "TRUE", fill = "both")
         } else {
@@ -1478,6 +1525,7 @@ function (lang="es")
 	fr.a0 <-tk2frame(tb3)
 	fr.a1 <-tk2frame(fr.a0)
 	fr.a2 <-tk2frame(fr.a0)
+	fr.a3 <-tk2frame(fr.a0)
 	panel3()
 	
 	#	panel 4
@@ -1522,79 +1570,6 @@ function (lang="es")
     tkpack(frame32, q.but)
 	tkpack(frame32, frame31, side="right") 
 	
-	tkfocus(tt) 
-	
-#
-#	Iconos usados en la aplicacion
-#
-icon.all <- "R0lGODlhFQAVAIcAACe9FS23FjKyHQHJAAbNAAvMABzGDBnNCxbTDhPbExTaExzSExzRFADiAADj
-AADmAATmEwblEgDvEAnkEwvkFAjmGAD5AAD/AAD7CAD/GRj2KCPAESPCEyPHFCfAFiTFFi7GEzbB
-IzXXMCTnLyP/Oj3nPTjrNkawL0iyN0uzOFC6Q3aqcETyR17vXlD0U1/1YGDUV2bSXHnDaSaC1DKD
-0zCG1Ym+g5enlJ2vmqSkpKmkqaioqK+urbGxsbOxs7KysrOzs7SytLS0tLa0tra2tre3t7i4uLm5
-ub29vb6+vpi74pnDlJ3CmJbUjZ3XmaLDnaPVmKfXnKvaoK7bpK/erLXHsrzPub/OvLHcp7Pdqrff
-r7XYsLfYtLjjs7nH26DE66jC46vD5ajK8bXH4sDAv8DAwMHBwcPDw8XFw8TExMXFxcbGxsfGx8fH
-x8nIxsjIyMnJycrJycrJysrKysvLysvLy8vPyszMzM3Nzc7OzM7Ozs/Pz8LL18fWxMvdyMzaycfQ
-3dDPztDPz9HQ0dHR0dLS0tPT09TT09TU1NXV1dfW1dbW1tfX19jY19nZ2NnY2tvZ29va2dra2tvb
-2tvb29jb39vc3t3a3tzc3N3d3d7e3d/e3d7e3sHW7sjX6c/d69PY4N7f4M3qx9Lrzdji193w2drh
-7dri79zm9uDg3+Dx2+Dg4ODg4eHg4OPi4eLi4uXk5eXl5ebk5ubm5ufn5+Tt4eLo7+jn6Ojo6Onp
-6erq6uvr6+nq7Ovr7Ozr6+3t7e7u7e/u7O7u7uXv+ezu8PHw7vLy8vPz8/Tz9PT09PT19PX19fb2
-9vf39/X3+/j4+Pn5+fr5+vr6+vv6+vv7+/z8/P39/f/+/P7+/v///v///wAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAP8ALAAAAAAVABUA
-AAj/ALUJFLgMkaGDCA0V0iNsoENtx9QgIZTwICI8hh4SbENJD7OB2EJq24VHo7E0u6TtSaZxZEmH
-y94c04YNjzGaD0nCnEPr2C9cdWbSDIlNm646DvUkieOmDRxKzRxis6YtFxyHZQ7Z8mRpx5FFdRIB
-QcSsWjVacxyS0SSmxilXiV5JWoVo0bJn0WDJwboJVRhnIatRkyYNGrNkylrZwUop27Vp0KA9a8Zs
-WTJktbpQcSJqoJlIwzoRA6YLV65YumbJ6lOCxAgpnh19mQEIDREhaYqwGaLjhokMFbB4VmRqDK9c
-tJLHIuXnDxcWGCI0KaVq1BlCxYL56qUrF65bW1q8kXChQQIEETBiqFgT6BOYSoIKFbozaImFCxYk
-TEiAgMCAAGvkoQQNfPAgRBE5+LCCAw80QIECDHTAwQYCrEEHKF6EkgonHHJiBRNP2FDAAh/IEAUU
-UMzxxiSRNMLIiy8+AsklV4BwgAdZDCSJET308MOPQP4YBA4hGADAFAPFgkkmTGbCSZNMslLFCSik
-oMVAAQEAOw=="
-
-icon.none <- "R0lGODlhFQAVAIcAACaC1DKD0zCG1bdZWK5jY7Zzc9wvGs00Lc05Jdc7K987MOksAOY4D+s2Ce00
-Du45Buo6CeMyEeY4HOk1Fu04Eew6FO08G/M6API4B/Q4APQ6APQ8APQ9A/U/AfU/AvM5CfM6CPM7
-COI7KfZFCvNFHfVGHO1AJuRGM/JCI/NBJPBNLfZYKvNWOctGQMpORMlVU99TS9JhW8txbs9zcM1/
-f9Z4c+ZVQu1fS/Z1UuVpY+13Ze6AcJidna6UlL6Pj7WTlKGioqSkpKioqK+urbGxsbCysrKysrOz
-s7O2t7SwsbS0tLS2t7a2tre3t7i4uLm5uby9vb29vb6+vpi74rnH26DE66jC46vD5ajK8bXH4seO
-j8+OjMWYmMyXlt6Mh9KamtWent2UkcC/v8y6u9KpqdWoqNqnptC7u9q3t9+5t+eUjuyVk/aXgu+g
-n+GopPawp8DAv8DAwMHBwcPDw8fBwsXFw8TExMTFxcXFxcbGxsfHx8nIxsjIyMnJycrJycrKysvL
-ysvLy83Ly8zMzMzNzc3Nzc7OzM7Ozs/Pz8LL18fQ3c7U1NDMzNHMzNDPztDPz9fPz93ExNDQ0NHR
-0dLS0tPT09HT1NLU1dTT09TU1NXV1dXV1tfW1dbW1tfX19XZ2dfc3NjY19nZ2NnZ2tva2dra2tvb
-2tvb29jb39vc3Nvc3tzb29zc3N3d3d7e3d/e3d7e3sHW7sjX6c/d69PY4N7f4Nrh7dri79zm9ufB
-weTMzODg3+Dg4ODh4ePi4eLi4uPi4uTk5OXl5eTm5ubm5ufn5+Lo7+jo6Onp6erq6uvr6+nq7Ovr
-7Ozr6+3t7e7u7e/u7O7u7uXv+ezu8PHw7vHz8/Ly8vLz8/Pz8/T09PX19fb29vf39/X3+/r39/j4
-+Pn5+fr6+vv6+vv7+/z8/P39/f/+/P7+/v///v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAP8ALAAAAAAVABUA
-AAj/ANMJFKgtU6WDCCtROhRtoMN02PBEmZTwYKZClR4S1HPq0LaB50KmU1ZIozU7ysIhyqZxZEmH
-2vhgS3eukDWaD0nC/FMMm7NjgWbSDHkuXbJADg9J8bNHT59T3ByeK5cOWR+HcTAZk6VKyJNOgTQd
-ybSNHLlifxzCcYVFwC1fmn6V4pWpk7Zv4IIJwvoK15VuIcmNCxcO3LZs23o1wnoKnTlx4MB947ZN
-W7Zr1azBYuRQDilpsaY9S3YMmbBkwHLpIpaKkDc3acrJEVUFgKI6TJTYaSLmSxs1ZSzR8cLiRhg5
-nGxlWYasmPNhaNa8YaNjS40SGVDkmDOJGrRmzJIhpTtGDFKXHThWqCChIcWMM3kczbKC6hElSoMk
-3UHiw8aIDheYIMMl2uRhyBQBJDKEEk0EYQQQS3BxggchYGBBDJGkkwcgtFBRyy6whNjKKGBIwAEI
-E1DwQAUwmPEHH6aQEoonNHryCRkLbPCBCAO00AAEDChQihNEEGHEkUcW0QMCDhhAAA9JuBBBAjQI
-w0orWLYCC5arLPLDAQVAsQkoY7ygxS8BAQA7"
-
-icon.ok <- "R0lGODlhGAAYAIcAADKdADSeADiXATmXBDmYAjqYBDicADyaBT2eAT2eBT6cBjyZCy+gACunFDKi
-ADagAD+iADSpF0CdBkCeBkKfBUKfCUGbEEGcEEWdFkieG0KgAkKgBUSiAkWiBkajBEajBkWkAEel
-AEKgCESgCUmlB0ymA0imDEqqAEmvBU+rA0yoBUysAE+sB02pCU6nEEqgHU+kHUWwAlCsB1SvB1au
-CVCtHVqtHlKxAFWzAFaxBFa3AFa0Blm1AFm3Bl23AFiyCFu1CFy2Clu5AFy4AF+4CF66CFizEUyz
-IFKkJ1WmKVapKVquJFmqLFutLFysKl6yKGKrGWC6AGG4B2e7AGS+AGK8CGO8CmS+CGa/CWC0Hmm8
-FWy9HW6+HmGxJ2K1KGS3K2a5Imu+IGy7ImS2NmW3OG+1PG24MGy6Qm67RHC/SXi3Wni4Wny6Xn65
-ZGfCAGjAAGnCAGrCAGvEAG7EAGjBC2rCCGjADmvFCWzCDG3FCm3HCm/ECW7FC27GC2/GDHDGAXLH
-AXHGBHPHCnDICXDICnLKCXPKCnTICnbJCnbMCnnMAHzNAHjKCnrLCnvMC3vOC3nODH7OC3zNDH/O
-DHrFGm/ALXHAIn3HKHrEN3XCTXfATXzDU37EVoS5YoDPAIDPDIPSA4XTA4bRAIbUAILQDITSDIfU
-DIjUAIjUAorVBonUCojUDIPOKZLXLJPYLpTYL5PXOpfZPJnaOobLQYDHVIHIVYrKXZnWTJnYRp/c
-SJbTUJbTUpbSXYfLZInLYYrMYo3KZonMaI/Ob5LNZpHNapTPbpDPcZjPeJfSYKDcSaXeVaLaXqTb
-XaDYYqngXKvKmaDVgqDWiajfqLfQp7DdobXZrrjQqLnSqLrTqrjZsbrcsr7dtsDUs8Lgu8Xhvcjg
-vNHny9Hlzdbqytrl0tnq1dnq1trr19/p2dzs2d3s2t7t2N7s3N7y2uDu3uPv4efx5ejy4eny5+7z
-6u316Oz06+326O717e737PT48/b59fb89vv7+fn8+fr8+v3+/P7+/iH5BAAAAP8ALAAAAAAYABgA
-AAj/AP8JHEiwoMGDCBMqFCjN2C9fwqjpW0gQ3TFezZYta4bMljd/C+0Ru+UsWSxXrWDhYrYLWLyE
-7S4pe3Vq1KhQoDwtUsRKl6VyB+lRynUK1apVpUh9ktQIEaA5s7i0MzhM1qmjSJUyRSRoTx0qmLb0
-IwhOVKqjppJOYnooEJw6WKoI0bJtoL9iqVStSktqkiNGh/5M6TSkSpEeRsDkE7iOD6RHkSJH+hvY
-B7Z9z3DsYOHBhDaBwfokKjTIj5wocfC84XFNIDwbIDpsEJFJYC09hgjxcWOGWxkdK6wJrMcGgmwJ
-CsgIpHWHUB44Ysb9Owdl2vA1D0ZQkHDgwBiBvejkxfkaRpxAeSDrrQkwYoKCAwUOpGF8Ba6VIT7M
-C5ynhr17+AMkUI1A/VRiRxVEBHGDF+r8w18AFfxXwAAL1IDPQN0IQQQQP9BwwhLftAFABcgdMMCJ
-BgxolyZS5DCDDC2E8AACFSQAXwEFCJBBA/wU9E4MWaSgAgkfbPCfiQQQ8AID5hxEDgpduMCBBgh0
-J8CVFiDhQDgJuXMEDU7AgMEFF2DwQhIlRIDOQv1s80UTTCihRJxPZNMjRf/cEw0naJyxCTTsIBQQ
-ADs="
-
+	# tkfocus(tt) 
+	a<-1
 }

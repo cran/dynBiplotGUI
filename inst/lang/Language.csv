@@ -133,3 +133,7 @@ Concatenar;Concatenate;Concaténer;Concatenar
 Etiquetas = nombre de variable + situación;Labels = variable name + situation;Tags = nom de variable + situation;Etiqueta = nome da variável + situação
 ERROR: bloques incompletos;ERROR: incomplete blocks;ERREUR: blocs incomplets;ERRO: blocos incompletos
 Sin etiquetas;No labels;Pas de tags;Não há tags
+Escala de la ventana gráfica;Scale of the graphic window;Échelle de la fenêtre;Escala da janela de visualização
+ERROR: situaciones no seleccionadas;ERROR: unselected situations;ERREUR: aucune situations sélectionnée;ERRO: não há situações selecionadas
+Selecciona situaciones:;Select situations:;Sélectionnez les situations:;Selecione situações:
+Marca las situaciones que quieras;Check the situations you want;Marquer les situations que vous voulez;Marcar as situações pretendidas

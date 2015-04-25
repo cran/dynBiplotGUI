@@ -15,6 +15,7 @@ Opcions for data format. Apply the format of the graphic elements.
   \item \emph{Title}: Allows entering the title of the biplot graphic. By default it puts Biplot.
   \item Check to display the subtitle on the graph. Default is disabled.
   \item \emph{Subtitle}: Allows entering the subtitle of the biplot graphic. If three-dimensional data are been processing, the subtitle is automatically generated with the value of the reference situation.
+  \item \emph{Scale of the graphic window}: Enter the scale factor of the output window. A value between 1.4 and 2.5 is recommended. The default value is 1.8. If the graphic window is already open must be closed and re-run the analysis.
 }
 }
 \section{Format:}{

@@ -15,6 +15,7 @@ Opciones para formato de datos. Permite aplicar el formato de los elementos grá
   \item \emph{Título}: permite introducir el título del gráfico biplot. Por defecto Biplot.
   \item Marca para mostrar el subtítulo en el gráfico. Por defecto está deshabilitado.
   \item \emph{Subtítulo}: permite introducir el subtítulo del gráfico biplot. Si se tratan datos de tres dimensiones se genera automáticamente con el valor de la situación de referencia.
+  \item \emph{Escala de la ventana gráfica}: Permite introducir el factor de escala de la ventana de salida. Se aconseja un valor entre 1.4 y 2.5. El valor por defecto es 1.8. Si la ventana gráfica ya está abierta debe cerrarse y volver a ejecutar el análisis.
 }
 }
 \section{Formato de datos:}{
