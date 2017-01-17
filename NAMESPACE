@@ -2,3 +2,10 @@ exportPattern("^[[:alpha:]]+")
 
 # Import all packages listed as Imports or Depends
 import(tcltk, tcltk2, tkrplot)
+  importFrom("grDevices", "dev.off", "jpeg", "pdf", "png", "postscript",
+             "savePlot", "svg")
+  importFrom("graphics", "abline", "arrows", "lines", "par", "plot",
+             "points", "text")
+  importFrom("stats", "lm", "pf", "sd", "summary.lm")
+  importFrom("utils", "fix", "help", "read.csv", "read.table",
+             "write.table")

@@ -1,6 +1,5 @@
 dynBiplot <-
 
-
 function (lang="es")
 {
 	#library(tcltk)
@@ -62,7 +61,7 @@ function (lang="es")
 	viny <- tclVar("0")			# variable cantidad de inercia a mostrar para y	
 	vesc <- tclVar("1")			# variable para reescalado
 	vtit <- tclVar("Biplot")	# variable para recoger el titulo
-	vsub <- tclVar()			# variable para recoger el subtitulo
+	vsub <- tclVar("Ref.: ")	# variable para recoger el subtitulo
 	neje <- tclVar("2")			# captura ejes a tratar
 	di1 <- tclVar("1")			# captura dim1 a tratar
 	di2 <- tclVar("2")			# captura dim2 a tratar
@@ -75,8 +74,8 @@ function (lang="es")
 	#
 	#		Declaracion de variables para evitar NOTE en R CMD check
 	#
-	bt.hoja <- bt.hc <- bt.hr <- bt.hs <- NULL	
-	b.x2 <- b.x3 <- NULL
+	bt.hc <- bt.hr <- bt.hs <- NULL	
+	b.x2 <- b.x3 <- noe <- NULL
 	bt.cubo.b <- bt.nl <- bt.leve <- NULL
 	bt.t <- bt.x <- bt.x2 <- bt.x3 <- bt.fx <- bt.fy <- bt.tf <- bt.fxg <- bt.fyg <- NULL
 	bt.mean <- bt.sd <- bt.x2m <- bt.x2sd <- NULL
@@ -129,7 +128,6 @@ function (lang="es")
 	}
 	if(1==2) b.x <- b.x				# para evitar error en R CMD check
 	if (tclvalue(bt.leer)=="1") leer.df()
-
         else if (tclvalue(bt.leer)=="2") leer.excel()
 			else if (tclvalue(bt.leer)=="3") b.x <<- leer.csv()
 				else if (tclvalue(bt.leer)=="4") b.x <<- leer.txt()
@@ -137,7 +135,8 @@ function (lang="es")
 						else b.x <<- leer.clipboard()
 	if (length(b.x)==0) {print(bt.lit[99,])		# -Selecciona tipo de fichero-
 						return() }
-	tkconfigure(la, text=mens.leer, foreground="black", background="yellow2")	# para mostrar a pie de pagina
+	leido <- c(leido, dim(b.x)[1], "x", dim(b.x)[2])
+	tkconfigure(la, text=leido, foreground="black", background="yellow2")	# para mostrar a pie de pagina
 	tk2tip(la, bt.lit[21,])			# Fichero cargado
 	cubo(b.x)
 	tclvalue(icar) <- "1"			# indicador de datos cargados
@@ -145,12 +144,11 @@ function (lang="es")
 	#		leer excel
 	#
 	leer.excel <- function()	{	
-		# require(xlsx)
+		# require(readxl)
 		if(1==2) b.x <- NULL				# para evitar error en R CMD check
-		hojaex <- tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
-		if (!length(hojaex))   return()
-		tmp <- xlsx::loadWorkbook(hojaex)
-		hojas <- names(xlsx::getSheets(tmp))		# lista de hojas
+		filex <- tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
+		if (!length(filex))   return()
+		hojas <- readxl::excel_sheets(filex)			# lista de hojas
 		whoja <- tktoplevel()
 		tkwm.title(whoja,bt.lit[22,])					# Selecciona
 		tl <- tk2listbox(whoja, height = min(length(hojas),15),
@@ -160,8 +158,8 @@ function (lang="es")
 		tkselection.set(tl, 0)
 		OnOK <- function()	{
 			bt.hoja <- hojas[as.numeric(tkcurselection(tl)) + 1]
-			b.x <<- xlsx::read.xlsx(hojaex,sheetName=bt.hoja,encoding="UTF-8")
-			mens.leer <<- bt.hoja
+			b.x <<- readxl::read_excel(filex,sheet=bt.hoja)
+			leido <<- bt.hoja
 			tkdestroy(whoja)
 		}
 
@@ -174,9 +172,9 @@ function (lang="es")
 	#		leer csv, sep=";", dec="."
 	#
 	leer.csv <- function()	{	
-		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{CSV files} {.csv}}"))
-		if (mens.leer=="") return()
-		read.csv(mens.leer, header=T, sep=";", dec=".")
+		leido <<- tclvalue(tkgetOpenFile(filetypes = "{{CSV files} {.csv}}"))
+		if (leido=="") return()
+		read.csv(leido, header=T, sep=";", dec=".")
 		}
 
 	#		leer dataframe
@@ -203,47 +201,35 @@ function (lang="es")
 		OnOK <- function()	{
 			bt.h1 <- h0[as.numeric(tkcurselection(tl)) + 1]
 			b.x <<- get(bt.h1)
-			mens.leer <<- bt.h1
-
+			leido <<- bt.h1
 			tkdestroy(t0)
-
 		}
 		OK.but <- tk2button(t0,text=bt.lit[25,],command=OnOK)	# OK
-
-
 
 		tkgrid(OK.but) 
 		tkfocus(t0) 
 		tkwait.window(t0)
 		}
 
-
-
-
-
-
-
-
-
 	#		leer txt
 	#
 	leer.txt <- function()	{
-		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{Text files} {.txt}}"))
-		if (mens.leer=="") return()
-		read.table(mens.leer, header=T)
+		leido <<- tclvalue(tkgetOpenFile(filetypes = "{{Text files} {.txt}}"))
+		if (leido=="") return()
+		read.table(leido, header=T)
 		}
 	#		leer SPSS
 	#
 	leer.spss <- function()	{
 		# library(foreign)
-		mens.leer <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
-		if (mens.leer=="") return()
-		foreign::read.spss(mens.leer, use.value.labels=F,to.data.frame=T)
+		leido <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
+		if (leido=="") return()
+		foreign::read.spss(leido, use.value.labels=F,to.data.frame=T)
 		}
 	#		leer clipboard
 	#
 	leer.clipboard <- function()	{
-		mens.leer <<- bt.lit[26,]		# Portapapeles
+		leido <<- bt.lit[26,]		# Portapapeles
 		read.table("clipboard",header=T)
 		}
 	#
@@ -255,14 +241,9 @@ function (lang="es")
 		fr12 <- tk2frame(fr.d2,relief="raised", borderwidth=2,padding="2")
 		fr12.2 <- tk2frame(fr12)
 		fr12.3 <- tk2frame(fr12)
-
-
-		vari <- colnames(x)
-		tclvalue(veti) <- colnames(x)[[1]]		# valor inicial a mostrar
-
-
-
-
+		noe <<- bt.lit[139,]					# sin etiquetas
+		vari <- c(noe ,colnames(x))				# pone "sin etiquetas"
+		tclvalue(veti) <- vari[[1]]				# valor inicial a mostrar
 		tclvalue(vsit) <- colnames(x)[[2]]		# valor inicial a mostrar
 		bt.cubo.b <<- tk2button(fr12,text=bt.lit[27,], command=function() cubo.gen(x))	# Generar matrices
 		tkpack(tk2label(fr12.2, text=bt.lit[28,],background="lightyellow",width=12),	# Etiquetas
@@ -290,8 +271,11 @@ function (lang="es")
 		
 	cubo2 <- function(x) {
 		ve <- tclvalue(veti)
-		rownames(x) <- x[,ve]
-		x[colnames(x)!=ve]					# elimino la columna de etiquetas
+		if (ve != noe) {				# sin etiquetas
+			rownames(x) <- x[,ve]
+			x[colnames(x)!=ve]			# elimino la columna de etiquetas
+		} 
+		return(x)
 		}
 		
 	cubo3 <- function(x) {
@@ -305,14 +289,15 @@ function (lang="es")
 		if(nrow(bt.x)%%bt.nl==0) 	# ckeck bloques completos
 			bt.x3 <- array(0,c(nrow(x)/bt.nl,ncol(bt.x),bt.nl))
 			else stop(bt.lit[133,])	# ERROR: bloques incompletos
-			
 
 		# 	carga la via 3
 		for (k in 1:bt.nl) bt.x3[,,k] <- as.matrix(subset(bt.x,x[vs]==bt.leve[k]))
 		#
 		#	etiqueta el cubo
 		colnames(bt.x3) <- colnames(bt.x)
-		rownames(bt.x3) <- x[ve][x[vs]==bt.t]	
+		if (ve != noe) 				# sin etiquetas
+			rownames(bt.x3) <- x[ve][x[vs]==bt.t]	
+			else rownames(bt.x3) <- 1:nrow(bt.x3)
 		dimnames(bt.x3)[[3]] <- bt.leve
 		#	Chequeamos trayectorias nulas:
 		#	filas
@@ -323,7 +308,7 @@ function (lang="es")
 		apply(bt.x3,c(2,3),sum)==0 -> hay0
 		if(any(hay0)) {bt.x3[1,,] <- 0.1
 				print(bt.lit[33,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
-		bt.x3
+		return(bt.x3)
 		}
 	#
 	#		Formato de individuos, variables y ocasiones
@@ -768,6 +753,7 @@ function (lang="es")
 	tkpack(tk2checkbutton(frf1,variable=it1,tip=bt.lit[110,]),		# Mostrar
 		tk2label(frf1,text=bt.lit[64,], width="11"), 	# Titulo
 		tk2entry(frf1, width="40", textvariable=vtit), side="left")
+	if (tclvalue(i3v)=="1") tclvalue(it2) <- "1"			# si 3 vias mostramos referencia
 	tkpack(tk2checkbutton(frf2,variable=it2,tip=bt.lit[110,]),		# Mostrar
 		tk2label(frf2,text=bt.lit[65,], width="11"), 	# Subtitulo
 		tk2entry(frf2, width="40", textvariable=vsub), side="left")
@@ -1474,7 +1460,6 @@ function (lang="es")
 			bt.ttp1 <<- tk2frame(bt.ttp)	# para figura
 			bt.ttp2 <<- tk2frame(bt.ttp,relief="raised",borderwidth=2,padding="2")	# pie para coordenadas
 			tkpack(bt.ttp1,bt.ttp2, side="top",fill="x")
-
 			fMenu()
 			fZoom()						# dibuja campos para zoom
 			bt.img <<- tkrplot(bt.ttp1, fun = plotBiplot1,
@@ -1550,8 +1535,8 @@ function (lang="es")
 	#
 	##	 Botones de la ventana general:
 	frame3 <- tk2frame(down.frm,relief="sunken",borderwidth=2,padding="2")
-	mens.leer <- bt.lit[93,]			# Leer datos
-	la <- tk2label(frame3,text=mens.leer, foreground="red")
+	leido <- bt.lit[93,]			# Leer datos
+	la <- tk2label(frame3,text=leido, foreground="red")
 	tkpack(la)							# para mostrar a pie de pagina
 	tkpack(frame3, side="left") 
 
