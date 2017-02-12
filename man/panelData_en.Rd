@@ -16,10 +16,7 @@ Panel Data Options: data load.
 \itemize{
   \item \file{b.fx} and \file{b.fy} graphics files to the formats of the elements. They keep close the application.
 }
-\bold{Temporary:}
-\itemize{
-  \item \file{bt.*} are files and temporary variables, where * can be any value. They are deleted when you close the application.
-}
+
 }
 \section{Option:}{
 \itemize{

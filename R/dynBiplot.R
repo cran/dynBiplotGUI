@@ -1,5 +1,6 @@
 dynBiplot <-
 
+
 function (lang="es")
 {
 	#library(tcltk)
@@ -7,10 +8,7 @@ function (lang="es")
 	#library(tkrplot)
 	#
 	# 	b.x 	- Archivo de entrada
-	# 	b.x2 	- Matriz de 2 vias
-	# 	b.x3 	- Cubo de 3 vias
 	#	b.f* 	- Archivos de formatos
-	#	bt.*	- Archivos/variables temporales
 	
 	#	Variables
 	#
@@ -25,7 +23,6 @@ function (lang="es")
 	ifd <- tclVar("0")			# indicador de ya mostrado formato datos
 	it1 <- tclVar("0")			# indicador de mostrar titulo
 	it2 <- tclVar("0")			# indicador de mostrar subtitulo
-	iagr <- 1					# indicador de boton de formato
 	iyax <- 0					# indicador de ya rotado x
 	iyay <- 0					# indicador de ya rotado y
 	isd <- tclVar("0")			# indicador de ya mostrado selector de datos
@@ -123,7 +120,7 @@ function (lang="es")
 	#
 	leer.archivos <- function()	{
 	if (tclvalue(icar)=="1") {		# Datos ya cargados
-		print(bt.lit[20,])			# ERROR datos ya cargados
+		ferror(bt.lit[20,],3)			# ERROR datos ya cargados
 		return()
 	}
 	if(1==2) b.x <- b.x				# para evitar error en R CMD check
@@ -133,8 +130,9 @@ function (lang="es")
 				else if (tclvalue(bt.leer)=="4") b.x <<- leer.txt()
 					else if (tclvalue(bt.leer)=="5") b.x <<- leer.spss()
 						else b.x <<- leer.clipboard()
-	if (length(b.x)==0) {print(bt.lit[99,])		# -Selecciona tipo de fichero-
+	if (length(b.x)==0) {ferror(bt.lit[99,],2)		# -Selecciona tipo de fichero-
 						return() }
+
 	leido <- c(leido, dim(b.x)[1], "x", dim(b.x)[2])
 	tkconfigure(la, text=leido, foreground="black", background="yellow2")	# para mostrar a pie de pagina
 	tk2tip(la, bt.lit[21,])			# Fichero cargado
@@ -161,6 +159,7 @@ function (lang="es")
 			b.x <<- readxl::read_excel(filex,sheet=bt.hoja)
 			leido <<- bt.hoja
 			tkdestroy(whoja)
+
 		}
 
 		OK.but <- tk2button(whoja,text=bt.lit[25,],command=OnOK)	# OK
@@ -182,13 +181,13 @@ function (lang="es")
 	leer.df <- function()	{
 		if(1==2) b.x <- b.x				# para evitar error en R CMD check
 		if (length(ls(.GlobalEnv))==0) 
-							{print(bt.lit[111,])		# Error en tipo de archivo
+							{ferror(bt.lit[111,],1)		# Error en tipo de archivo
 							b.x <<- NULL
 							return() }	# no hay ficheros
 		h0 <- lsos()
 		aa <- h0 %in% ls(.GlobalEnv,pattern=".f")	# para no mostrar formatos
 		h0 <- h0[!aa]
-		if (length(h0)==0) {print(bt.lit[111,])		# Error en tipo de archivo
+		if (length(h0)==0) {ferror(bt.lit[111,],1)		# Error en tipo de archivo
 							b.x <<- NULL
 							return() }	# no hay ficheros
 		t0 <- tktoplevel()
@@ -205,6 +204,8 @@ function (lang="es")
 			tkdestroy(t0)
 		}
 		OK.but <- tk2button(t0,text=bt.lit[25,],command=OnOK)	# OK
+
+
 
 		tkgrid(OK.but) 
 		tkfocus(t0) 
@@ -273,8 +274,8 @@ function (lang="es")
 		ve <- tclvalue(veti)
 		if (ve != noe) {				# sin etiquetas
 			rownames(x) <- x[,ve]
-			x[colnames(x)!=ve]			# elimino la columna de etiquetas
-		} 
+			x[colnames(x)!=ve]	}		# elimino la columna de etiquetas
+		else rownames(x) <- 1:nrow(x)
 		return(x)
 		}
 		
@@ -303,11 +304,11 @@ function (lang="es")
 		#	filas
 		apply(bt.x3,c(1,2),sum)==0 -> hay0
 		if(any(hay0)) {bt.x3[,,1][hay0] <- 0.1
-				print(bt.lit[32,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
+				print(bt.lit[32,],use.names=F)}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		#	columnas
 		apply(bt.x3,c(2,3),sum)==0 -> hay0
 		if(any(hay0)) {bt.x3[1,,] <- 0.1
-				print(bt.lit[33,])}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
+				print(bt.lit[33,],use.names=F)}	# AVISO: una fila tiene todos 0. Se pone 0.1 a una celda
 		return(bt.x3)
 		}
 	#
@@ -333,23 +334,23 @@ function (lang="es")
 		tix <- tiy <- 1							# indicadores de cargar formato
 		
 		if (tclvalue(ifo)=="1") {				# chequear formatos leidos
-			if(!exists("b.fx")) {print(bt.lit[122,])	# ERROR: formato filas
+			if(!exists("b.fx")) {ferror(bt.lit[122,],2)	# ERROR: formato filas
 								tclvalue(ifo) <- "0"	# reset para dar formato
 								tix <- 0		# indicador de error formato x
 								}
 			else 
 				if (any(rownames(b.x2)!=rownames(b.fx))) 
-								{print(bt.lit[122,])	# ERROR: formato filas
+								{ferror(bt.lit[122,],2)	# ERROR: formato filas
 								tclvalue(ifo) <- "0"	# reset para dar formato
 								tix <- 0		# indicador de error formato x
 								}
-			if(!exists("b.fy")) {print(bt.lit[123,])	# ERROR: formato columnas
+			if(!exists("b.fy")) {ferror(bt.lit[123,],2)	# ERROR: formato columnas
 								tclvalue(ifo) <- "0"	# reset para dar formato
 								tiy <- 0		# indicador de error formato x
 								}
 			else 					
 				if (any(colnames(b.x2)!=rownames(b.fy))) 
-								{print(bt.lit[123,])	# ERROR: formato columnas
+								{ferror(bt.lit[123,],2)	# ERROR: formato columnas
 								tclvalue(ifo) <- "0"	# reset para dar formato
 								tiy <- 0		# indicador de error formato x
 								}							
@@ -457,15 +458,15 @@ function (lang="es")
 		col.sel <- function()	{bt.hc <<- as.numeric(tkcurselection(lbc)) + 1
 								bt.hr <<- as.numeric(tkcurselection(lbr)) + 1
 			# Validacion de elementos marcados:
-			if (length(bt.hr)==0) {print(bt.lit[43,])	# ERROR: filas no seleccionadas
+			if (length(bt.hr)==0) {ferror(bt.lit[43,],1)	# ERROR: filas no seleccionadas
 									return()}
-			if (length(bt.hc)==0) {print(bt.lit[44,])	# ERROR: columnas no seleccionadas
+			if (length(bt.hc)==0) {ferror(bt.lit[44,],1)	# ERROR: columnas no seleccionadas
 									return()}
 			if (tclvalue(i3v)=="1") {bt.hs <<- as.numeric(tkcurselection(lbs)) + 1
-				if (length(bt.hs)<=1) {print(bt.lit[136,])	# ERROR: situaciones no seleccionadas
+				if (length(bt.hs)<=1) {ferror(bt.lit[136,],1)	# ERROR: situaciones no seleccionadas
 									return()}
 									}
-			if (length(bt.hr)<length(bt.hc)) {print(bt.lit[121,])	# ERROR: filas < columnas
+			if (length(bt.hr)<length(bt.hc)) {ferror(bt.lit[121,],1)	# ERROR: filas < columnas
 									return()}
 			tkconfigure(tb4.cb0,values= c(2:length(bt.hc)))
 			tkconfigure(tb4.cb1,values= c(1:(length(bt.hc)-1)))
@@ -501,6 +502,10 @@ function (lang="es")
 		nejes <<- as.numeric(tclvalue(neje))
 		dim1 <<- as.numeric(tclvalue(di1))
 		dim2 <<- as.numeric(tclvalue(di2))
+		if(dim2 > nejes) {ferror(bt.lit[142,],2)	# Ejes mal seleccionados
+							return()	}
+		if(dim2 <= dim1) {ferror(bt.lit[142,],2)
+							return()	}
 		if (tclvalue(i3v)=="1") {bt.t <<- tclvalue(vref)	# 3 vias
 						b.x2 <<- b.x3[,,bt.t]
 						bt.x3 <<- b.x3[bt.hr,bt.hc,bt.hs]	
@@ -516,8 +521,8 @@ function (lang="es")
 		if (tclvalue(i3v)=="1") {
 			if (tclvalue(iref)=="2") {	# iref 1,2,3 = 1,2,3 vias
 				bt.x2m <<- apply(bt.x3,2,mean)	# media del filete
-				# bt.x2sd <<- apply(bt.x3,2,sd)		# sd global	DA ERROR
-				bt.x2sd <<- bt.x2m		# prepara estructura
+				bt.x2sd <<- apply(bt.x3,2,sd)		# sd global	DA ERROR
+				# bt.x2sd <<- bt.x2m		# prepara estructura
 				for (i in 1:ncol(bt.x3)) bt.x2sd[i] <<- sd(as.vector(bt.x3[,i,]))
 			}	else {	
 					if (tclvalue(iref)=="3") {	# media del cubo
@@ -679,7 +684,7 @@ function (lang="es")
 	# 	Mostrar los resultados
 	#
     ShowRes <- function()
-      {                        
+      {
         cat(bt.lit[2,], "\n", file = "Results.txt")				#cabecera: Biplot Dinamico
 		if(tclvalue(icen)==1) cat (bt.lit[46,],file="Results.txt", append=TRUE)	# Centrado
 			else cat(bt.lit[47,], file="Results.txt", append=TRUE)		# No centrado
@@ -899,7 +904,7 @@ function (lang="es")
 		tkconfigure(bt.cv2,bg=x$tcol[1])
 		tclvalue(imos) <- x$type[1]
 		tkconfigure(bt.typ1,variable=imos)
-		tkconfigure(bt.bu3,state="enable")
+		tkconfigure(bt.bu3,state="enable")		# cambia
 	}
 	
 	camb <- function () { 
@@ -919,7 +924,7 @@ function (lang="es")
 		tmp <- as.data.frame(t(tbf), stringsAsFactors = F)
 		if (tclvalue(vf)=="1") b.fx <<- tmp
 			else b.fy <<- tmp
-		tkconfigure(bt.bu3,state="disable")
+		tkconfigure(bt.bu3,state="disable")		# cambia
 		}
 		
 		# Dibuja los campos la primera vez
@@ -936,27 +941,34 @@ function (lang="es")
 		bt.lf2 <-tk2labelframe(ff21.3,text=bt.lit[82,])	# Multiple
 		tkpack(bt.lf1,bt.lf2, side="left",fill="x")
 
-		fagr <- function() {
+		fag1 <- function() {
 			b.x <- b.x					# para evitar error en R CMD check
 			b.fx <- b.fx				# para evitar error en R CMD check
-			if(iagr==1) {				# para alternar el uso del boton
-				tkconfigure(eagr,values=sort(unique(b.x[[tclvalue(vagr)]])))
-				tkconfigure(bagr,text="sel>")
-				iagr <<- 2
-			} else {
-				tmplb <- rownames(b.x2)[b.x2[,tclvalue(vagr)]==tclvalue(vag1)]
-				tkconfigure(bagr,text="<sel")
-				iagr <<- 1
-				bt.fx <<- b.fx
-				bt.tf <<- b.fx[tmplb,]
-				tclvalue(vf) <- "1"
-				Formatos(bt.tf)
-		}	}
-		bagr <- tk2button(bt.lf2,text="<sel",command=fagr,width=4)
-		eagr <- tk2combobox(bt.lf2,textvariable=vag1,width=7)
-		tkpack(tk2label(bt.lf2,text=bt.lit[61,],width=7,background="peachpuff"),	# Variable
-				tk2combobox(bt.lf2,values=colnames(b.x2),textvariable=vagr,width=5),
-				bagr,eagr,side="left",fill="x")
+			tempa <- as.vector(sort(unique(b.x[[tclvalue(vagr)]])))
+			tkconfigure(eag2,values=tempa)
+		}
+		fag2 <- function() {
+			b.x <- b.x					# para evitar error en R CMD check
+			b.fx <- b.fx				# para evitar error en R CMD check
+			tmplb <- rownames(b.x2)[b.x2[,tclvalue(vagr)]==tclvalue(vag1)]
+			bt.fx <<- b.fx
+			bt.tf <<- b.fx[tmplb,]
+			tclvalue(vf) <- "1"			# formato para filas
+			Formatos(bt.tf)
+		}
+		
+			# Frames para lineas
+		lf2.fr1 <- tk2frame(bt.lf2)
+		lf2.fr2 <- tk2frame(bt.lf2)
+		tkpack(lf2.fr1,lf2.fr2,side="top",fill="x")
+		lag1 <- tk2label(lf2.fr1,text=bt.lit[61,],width=8,background="peachpuff")	# Variable
+		eag1 <- tk2combobox(lf2.fr1,values=colnames(b.x2),textvariable=vagr,width=15)
+		bag1 <- tk2button(lf2.fr1,text="<sel",command=fag1,width=4)
+		lag2 <- tk2label(lf2.fr2,text=bt.lit[143,],width=8,background="peachpuff")	# Valor
+		eag2 <- tk2combobox(lf2.fr2,textvariable=vag1,width=15)
+		bag2 <- tk2button(lf2.fr2,text="<sel",command=fag2,width=4)
+		tkpack(lag1,eag1,bag1,side="left",fill="x")			# linea 1
+		tkpack(lag2,eag2,bag2,side="left",fill="x")			# linea 2
 		tk2tip(bt.lf2, bt.lit[83,])			# Variable de agrupacion
 		
 			# Frames para los campos 
@@ -1029,7 +1041,19 @@ function (lang="es")
 			else topic <- paste(topic,"_en",sep="")
 		print(help(topic))
 	}
-
+	#	Funcion mensaje de error
+	#		icono = 1	error
+	#		icono = 2	warning
+	#		icono = 3	info
+	#		icono = 4	question
+	#
+	ferror <- function(literal="Error",icono=1) {
+		if (icono==2) ico <- "warning"
+			else if (icono==3) ico <- "info"
+			else if (icono==4) ico <- "question"
+			else ico <- "error"
+		tkmessageBox(message=literal,icon=ico)
+	}
 	#
 	#	Generarcion de paneles
 	#
@@ -1060,6 +1084,15 @@ function (lang="es")
 		tkpack(tk2label(fr1,text=bt.lit[99,],background="lightyellow"))	# Selecciona tipo de fichero
 		# if (.Platform$OS.type=="windows") tmp="enable"	
 			# else tmp="disable"
+		tmp <- .packages(all.available=TRUE)
+		if ("readxl" %in% tmp) tmpe="enable" 				# para leer Excel
+			else {tmpe="disable"
+				tmp1 <- c(bt.lit[140,], " Excel ", bt.lit[141,], " readxl")
+				ferror(tmp1,3)	}
+		if ("foreign" %in% tmp) tmps="enable" 				# para leer SPSS
+			else {tmps="disable"
+				tmp1 <- c(bt.lit[140,], " SPSS ", bt.lit[141,], " foreign")
+				ferror(tmp1,3)	}
 		fr1a <- tk2frame(fr1)
 		fr1b <- tk2frame(fr1)
 		tkpack(fr1a,fr1b,side="top")
@@ -1067,14 +1100,13 @@ function (lang="es")
 				tk2radiobutton(fr1a, command=leer.archivos, text="R",
 							 value=1, variable=bt.leer), 
 				tk2radiobutton(fr1a, command=leer.archivos, text="Excel",
-							 # value=1, variable=bt.leer,state=tmp), 
-							 value=2, variable=bt.leer), 
+							 value=2, variable=bt.leer,state=tmpe), 
 				tk2radiobutton(fr1b, command=leer.archivos, text="txt",
 							 value=4, variable=bt.leer),			 
 				tk2radiobutton(fr1b, command=leer.archivos, text="CSV",
 							 value=3, variable=bt.leer),	
 				tk2radiobutton(fr1a, command=leer.archivos, text="SPSS",
-							 value=5, variable=bt.leer),			 
+							 value=5, variable=bt.leer,state=tmps),
 				tk2radiobutton(fr1b, command=leer.archivos, text=bt.lit[100,],	# portapapeles
 							 value=6, variable=bt.leer), 
 				side="left")	
@@ -1230,10 +1262,10 @@ function (lang="es")
 		vix <- as.numeric(tclvalue(vinx))
 		viy <- as.numeric(tclvalue(viny))
 		if (any(bt.fxg$ine > vix)== TRUE) bt.fxg$inl <<- bt.fxg$ine > vix
-			else {print(bt.lit[125,])		# La inercia escogida excluye todas las filas
+			else {ferror(bt.lit[125,],2)		# La inercia escogida excluye todas las filas
 					return()}
 		if (any(bt.fyg$ine > viy)== TRUE) bt.fyg$inl <<- bt.fyg$ine > viy
-			else {print(bt.lit[126,])		# La inercia escogida excluye todas las columnas
+			else {ferror(bt.lit[126,],2)		# La inercia escogida excluye todas las filas
 					return()}
 		bt.fxg$inl[bt.fxg$type==0] <- F		# si opcion no pintar
 		bt.fyg$inl[bt.fyg$type==0] <- F
@@ -1355,7 +1387,7 @@ function (lang="es")
 		else if (nn=="png")
 			png(FileName, width = 7, height = 7, units = "in", 
 					restoreConsole = FALSE, res = 96)
-		else print(bt.lit[111,])		# ERROR en tipo de archivo
+		else ferror(bt.lit[111,],1)		# ERROR en tipo de archivo
 
 		plotBiplot1 (screen = FALSE)
         dev.off()

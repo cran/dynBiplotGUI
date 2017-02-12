@@ -1,5 +1,5 @@
 \name{dynBiplotGUI-package}
-\Rdversion{1.1.2}
+\Rdversion{1.1.5}
 \alias{dynBiplotGUI-package}
 \alias{dynBiplotGUI}
 \docType{package}

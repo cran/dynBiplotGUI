@@ -15,10 +15,7 @@ Opciones del panel de datos: Carga de datos.
 \itemize{
   \item \file{b.fx} y \file{b.fy} ficheros con los formatos gráficos de los elementos. Se mantienen al cerrar la aplicación.
 }
-\bold{Temporales:}
-\itemize{
-  \item \file{bt.*} son ficheros y variables temporales, donde * puede tener cualquier valor. Son borrados al cerrar la aplicación.
-}
+
 }
 \section{Opción:}{
 \itemize{

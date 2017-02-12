@@ -1,3 +1,18 @@
+VERSION 1.1.5
+12 February 2017
+News features
+
+* Check that the necessary packages for reading Excel and SPSS are installed.
+* It is validated that the axes have been selected correctly.
+* The multiple selection process is redesigned.
+* Messages and messages are now displayed in a window.
+* Updated documentation.
+* Improved code.
+
+Bug fix.
+
+* An error occurred when using 'multiple format' with variables 'factor'.
+
 VERSION 1.1.4
 17 January 2017
 News features
