@@ -142,6 +142,7 @@ function (lang="es")
 	#		leer excel
 	#
 	leer.excel <- function()	{	
+		if (!requireNamespace("readxl")) ferror(bt.lit[146,],1)		# Error readxl necesario
 		# require(readxl)
 		if(1==2) b.x <- NULL				# para evitar error en R CMD check
 		filex <- tclvalue(tkgetOpenFile(filetypes = "{{Excel files} {.xls .xlsx}}"))
@@ -156,7 +157,10 @@ function (lang="es")
 		tkselection.set(tl, 0)
 		OnOK <- function()	{
 			bt.hoja <- hojas[as.numeric(tkcurselection(tl)) + 1]
-			b.x <<- readxl::read_excel(filex,sheet=bt.hoja)
+			# b.x <<- readxl::read_excel(filex,sheet=bt.hoja)
+			tmp <- readxl::read_excel(filex,sheet=bt.hoja)
+			class(tmp) <- "data.frame"		# para evitar error en la generacion del cubo
+			b.x <<- tmp
 			leido <<- bt.hoja
 			tkdestroy(whoja)
 
@@ -222,7 +226,7 @@ function (lang="es")
 	#		leer SPSS
 	#
 	leer.spss <- function()	{
-		# library(foreign)
+		if (!requireNamespace("foreign")) ferror(bt.lit[145,],1)		# Error foreign necesario
 		leido <<- tclvalue(tkgetOpenFile(filetypes = "{{SPSS Files} {.sav}}"))
 		if (leido=="") return()
 		foreign::read.spss(leido, use.value.labels=F,to.data.frame=T)
@@ -1402,7 +1406,7 @@ function (lang="es")
 		filemenu <- tk2menu(topmenu,tearoff=FALSE)
 		viewmenu <- tk2menu(topmenu,tearoff=FALSE)
 		tkadd(filemenu,"command",label=bt.lit[112,],	# Copiar imagen
-				command=function() tkrreplot(bt.img))
+				command=function() tkrplot::tkrreplot(bt.img))
 		tkadd(filemenu,"command",label=bt.lit[113,],command=function()	# Guardar Imagen
 				GuardaArchivo() )
 		tkadd(filemenu,"separator")
@@ -1444,7 +1448,7 @@ function (lang="es")
 					iyay <<- 0
 					tclvalue(ey1) <-min(bt.limy1)
 					tclvalue(ey2) <-max(bt.limy1)}
-		tkrreplot(bt.img)
+		tkrplot::tkrreplot(bt.img)
 		}
 		bxy <- tk2button(bt.ttp2,text=bt.lit[116,],command=fxy)		# Refrescar
 		bt.ttp3 <- tk2frame(bt.ttp2,relief="raised", borderwidth=2,padding="2")
@@ -1468,6 +1472,7 @@ function (lang="es")
 	
 	plotBiplot <- function(screen = TRUE) 
 		{   
+   		if (!requireNamespace("tkrplot")) ferror(bt.lit[144,],1)		# Error tkrplot necesario
    		if (tclvalue(i3v)=="1" & tclvalue(ibg)!="1")  {		
 			bt.limx <<- range(0,range(bt.res.ty[,dim1,]),range(bt.res.tx[,dim1,]))
 			bt.limy <<- range(0,range(bt.res.ty[,dim2,]),range(bt.res.tx[,dim2,])) 
@@ -1494,13 +1499,14 @@ function (lang="es")
 			tkpack(bt.ttp1,bt.ttp2, side="top",fill="x")
 			fMenu()
 			fZoom()						# dibuja campos para zoom
-			bt.img <<- tkrplot(bt.ttp1, fun = plotBiplot1,
+			# bt.img <<- tkrplot(bt.ttp1, fun = plotBiplot1,
+			bt.img <<- tkrplot::tkrplot(bt.ttp1, fun = plotBiplot1,
 				hscale = as.numeric(tclvalue(wout1)),
 				vscale = as.numeric(tclvalue(wout2)))
         	tclvalue(ittp)<-1
         	tkpack(bt.img, expand = "TRUE", fill = "both")
         } else {
-        	tkrreplot(bt.img) 
+        	tkrplot::tkrreplot(bt.img) 
         	}
 	}	
 	#

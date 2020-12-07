@@ -1,3 +1,12 @@
+VERSION 1.1.6
+07 December 2020
+News features
+* Changed 'tkrplot' package to Suggests section in DESCRIPTION file.
+
+Bug fix.
+
+* Error reading from Excel caused by the tibble package (used by readxl).
+
 VERSION 1.1.5
 12 February 2017
 News features
